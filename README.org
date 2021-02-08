@@ -1,0 +1,123 @@
+#+TITLE: TREX Reports latex template
+
+* Installation
+
+  To use this template, create a new GitHub repository by using this one
+  as a template.
+
+  #+begin_important
+  Make sure that both the /draft/ and /final/ branches are imported by checking
+  the box when you create your repository. 
+  #+end_important
+
+
+  In your new repository, start working on the /draft/ branch. When you submit
+  the pdf for review, create a pull request to the /final/ branch from
+  the /draft/ branch.
+
+  The reviewers can then use the GitHub code-review system to make
+  reviews of the document. When all the reviews are accepted, the pull
+  request is accepted to the /final/ branch.
+
+  #+begin_important
+  When the versions of the file are changed, be sure that you create a
+  git tag accordingly.
+  #+end_important
+
+
+** List of required LaTex Packages
+
+   - lastpage
+   - graphicx
+   - fancyhdr
+   - amsmath
+   - amssymb
+   - titlesec
+   - colortbl
+   - acronym
+   - tocloft
+   - hyperref
+   - xcolor
+   - xparse
+
+   
+* Manual
+
+** Initialization
+   
+   Edit the ~Makefile~ and provide:
+
+   - the Work Package (~WP~) number
+   - the ~NUMBER~ of the deliverable
+   - a ~TITLE~
+
+   Create the main file with the adapted name:
+   #+BEGIN_SRC sh
+   make create
+   #+END_SRC sh
+
+   This will create a file named =D$(WP).$(NUMBER)-$(TITLE).tex=,
+   which will be the main \LaTeX file.
+
+   Now, you can compile the example provided using 
+   #+BEGIN_SRC sh
+   make 
+   #+END_SRC sh
+
+   The output =pdf= file will contain a starting example of the report.
+  
+   
+** Meta-data
+
+   Open the main =tex= file (=D$(WP).$(NUMBER)-$(TITLE).tex=), and
+   fill in the macros in the prepared block. This information will be
+   re-used in multiple places in the document.
+  
+** Title Page
+
+   Search for the string ~TODO~ in the =01-title.tex= file.
+   You will need to change the ~\Dissemination~ macro according to the
+   chosen dissemination level. Default is /PU/.
+
+   You will also need to check the appropriate box of the front page.
+   Use ~$\boxtimes$~ for the checked box and ~$\Box$~ for the empty boxes.
+
+** The main document
+
+   The main text of your report will be written in the
+   =05-content.tex= file.
+
+   The references can be handled with bibtex in the =references.bib=
+   file.
+
+   The appendices should be written in the =appendix.tex= file.
+
+   The images and figures should be put in the =images= directory.
+
+** Versioning
+
+   When the version changes, please create a git tag associated with
+   the commit containing the change.
+   
+** Abbreviations
+
+   Every time you use an abbreviation, don't do it inline in the
+   text. We use the [[http://mirrors.ctan.org/macros/latex/contrib/acronym/acronym.pdf][acronym]] \LaTeX package which allows to define the
+   acronym the 1st time it occurs in the text, and to create
+   automatically a list of acronyms, keeping only the ones that were
+   used in the text.
+
+   To add a new acronym, add it in the =04-abbreviations.tex=
+   file. For example:
+
+   #+begin_src latex
+   \acro{QMC}{Quantum Monte Carlo}
+   #+end_src
+
+   and to use it in the text, use the =\ac= macro, for example
+
+   #+begin_src latex
+   Thanks to the \ac{TREX} \ac{CoE}, \ac{QMC} methods will produce amazing results.
+   #+end_src
+
+
