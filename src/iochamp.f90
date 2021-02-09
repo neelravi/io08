@@ -1,6 +1,3 @@
-!============================================================
-!= Sample program using the f90 FDF module : September 2007 =
-!============================================================
 !
 !     Shows FDF capabilities..
 !
@@ -10,8 +7,8 @@ PROGRAM iochamp
   implicit none
 !--------------------------------------------------------------- Local Variables
   integer, parameter         :: maxa = 100
-  logical                    :: doit, debug, check
-  character(len=72)          :: fname, axis, status, filename, title, molecule_name
+  logical                    :: doit, debug, check, val
+  character(len=72)          :: fname, axis, status, filename, title, molecule_name, key
   character(2)               :: symbol(maxa)
   integer(sp)                :: i, j, ia, na, external_entry
   integer(sp)                :: isa(maxa)
@@ -21,11 +18,12 @@ PROGRAM iochamp
   real(dp)                   :: listr(maxa)
   type(block_fdf)            :: bfdf
   type(parsed_line), pointer :: pline
+  !type(fdf_file)             :: fdffile 
   integer                    :: nextorb, nblk_max, nopt_iter, max_iteration, max_iter
   real(dp)                   :: energy_tol
   real(dp)                   :: sr_tau, sr_eps, sr_adiag 
   character(len=15)          :: real_format = '(A, T20, F8.5)'
-  character(len=15)          :: int_format = '(A, T20, I6)'
+  character(len=15)          :: int_format = '(A, T20, I8)'
 
 !------------------------------------------------------------------------- BEGIN
 
@@ -72,44 +70,45 @@ PROGRAM iochamp
   write(6,'(A, L2)') 'Debug:', debug
 
 
-
-
 ! mixed types in one line (for example, reading a number with units)
   cutoff = fdf_physical('Energy_Cutoff', 8.d0, 'Ry')
   write(6,fmt=real_format) 'Energy CutOff:', cutoff, " eV"
 
   phonon_energy = fdf_physical('phonon-energy', 0.01d0, 'eV')
-  write(6,*) 'Phonon Energy:', phonon_energy
+  write(6,fmt=real_format) 'Phonon Energy:', phonon_energy
 
- 
 
-! ! to check if a certain flag is defined or not
-!   check = fdf_defined('optimization_flags')
-!   write(6,*) 'optimization flags block defined', check
 
+! block containing other key-value pairs (currently not working)  
 !   if (fdf_block('optimization_flags', bfdf)) then
-!     !   Forward reading
-!         do while(fdf_bline(bfdf, pline))
-!           doit = fdf_bboolean(pline, 1)
-!           write(*,*) "inside opt block", doit
-!         enddo
+!       ia = 1
+!       do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
+! !        doit = fdf_bboolean(pline, 1)        
+!         doit = fdf_boolean("optimize_wavefunction", .true.)
+!         write(6,*) 'optimize_wavefunction', doit
+
+!         doit = fdf_boolean('optimize_ci', .true.)
+!         write(6,*) 'optimize_ci', doit
+
+!         doit = fdf_boolean('optimize_jastrow', .true.)
+!         write(6,*) 'optimize_jastrow:', doit
+
+!         doit = fdf_boolean('optimize_orbitals', .true.)
+!         write(6,*) 'optimize_orbitals:', doit
+!       enddo
 !   endif
-    
 
-  ! if (fdf_block('optimization_flags', bfdf)) then
-  !   doit = fdf_bboolean(pline, 1)
-  !   write(6,*) 'optimize_wavefunction', doit
+  doit = fdf_boolean("opt.optimize_wavefunction", .true.)
+  write(6,*) 'optimize_wavefunction', doit
 
-  !   doit = fdf_boolean('optimize_ci', .true.)
-  !   write(6,*) 'optimize_ci', doit
+  doit = fdf_boolean('opt.optimize_ci', .true.)
+  write(6,*) 'optimize_ci', doit
 
-  !   doit = fdf_boolean('optimize_jastrow', .true.)
-  !   write(6,*) 'optimize_jastrow:', doit
+  doit = fdf_boolean('opt.optimize_jastrow', .true.)
+  write(6,*) 'optimize_jastrow:', doit
 
-  !   doit = fdf_boolean('optimize_orbitals', .true.)
-  !   write(6,*) 'optimize_orbitals:', doit
-  ! endif
-
+  doit = fdf_boolean('opt.optimize_orbitals', .true.)
+  write(6,*) 'optimize_orbitals:', doit
 
 
 
@@ -118,35 +117,50 @@ PROGRAM iochamp
   write(6,*) 'Examples: maximum_iter =', max_iter
 
 
-
-  check = fdf_defined('molecule')
-  write(6,*) 'molecule block has been defined', check
-
-  if (fdf_block('Other-Block', bfdf)) then
-      write(6,*) "inside molecule block"
-      fname = fdf_string('molecule.xyz', 'h2o.xyz')
-      write(6,*) 'Name of xyz file:', fname
-
-      write(6,*) 'Coordinates:'
+  if (fdf_defined('molecule')) then
+      write(6,*) "molecule block has been defined :: molecule's geometry in angstrom units"
+      molecule_name =  fdf_string('molecule', 'h2o.xyz')
+      write(6,*) 'Name of xyz file:', molecule_name
       
-      na = fdf_bintegers(pline, 1)
-      write(6,*) 'Number of atoms =', na
-      molecule_name = fdf_bnames(pline, 1)
-      write(6,*) 'Name of the molecule =', molecule_name
       ia = 1
-        do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
-          symbol(ia) = fdf_bnames(pline, 1)
-          do i= 1, 3
-            xa(i,ia) = fdf_breals(pline, i)
-          enddo
-          ia = ia + 1
+      do while(fdf_bline(bfdf, pline))
+        symbol(ia) = fdf_bnames(pline, 1)
+        do i= 1, 3
+          xa(i,ia) = fdf_breals(pline, i)
         enddo
+        ia = ia + 1
+      enddo
+      na = ia - 1 
+  endif
+  
+    write(6,*) 'Coordinates from an external file:'
+    do ia = 1, na
+      write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
+    enddo
+  
+
+
+
+!  Molecule coordinate block begins here  
+
+  if (fdf_block('Coordinates', bfdf)) then
+    ia = 1
+    do while(fdf_bline(bfdf, pline))
+      symbol(ia) = fdf_bnames(pline, 1)
+      do i= 1, 3
+        xa(i,ia) = fdf_breals(pline, i)
+      enddo
+      ia = ia + 1
+    enddo
+    na = ia - 1 
   endif
 
   write(6,*) 'Coordinates:'
-  do ia= 1, na
-    write(6,'(3F10.6,I5)') (xa(i,ia),i=1,3), symbol(ia)
+  do ia = 1, na
+    write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
   enddo
+
+!  Molecule coordinate block ends here
 
 
   if (fdf_block('Other-Block', bfdf)) then

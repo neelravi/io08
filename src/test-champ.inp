@@ -1,39 +1,5 @@
 title "A Sample QMC input file parsed by libfdf interfaced to CHAMP"
 
-%block general
-	pool_directory        pool
-	pseudopotential       BFD
-	basis                 BFD-T-normf0
-%endblock
-
-
-%block sample
-	max_iteration 	      3            
-	Energy_Cutoff         500.0 eV      
-	float_value  		  3.14e10                   
-	filename	  		  'sample read input.txt'                 
-	phonon-energy 		  344  cm**-1   
-%endblock  
-
-molecule caffeine.xyz   
-
-
-%include pool/BFD-T.bfinfo     
-
-
-#  Comments start with a '#' Can be included anywhere
-
-#%include TZ_1M_500.det
-#%include jastrow_good_b3lyp.0          
-
-%block optimization_flags
-	optimize_wavefunction 		true		
-	optimize_ci 		 		T
-	optimize_jastrow		 	yes
-	optimize_orbitals			0
-%endblock
-
-
 nextorb   	280
 nblk_max 	200
 nopt_iter   2
@@ -44,4 +10,61 @@ sr_adiag 	0.05
 energy_tol 	0.0
 
 
+opt.optimize_wavefunction 		no		
+opt.optimize_ci 		 		No
+opt.optimize_jastrow		 	yes
+opt.optimize_orbitals			False
+
+
+# The sub blocks currently does not parse. 
+
+%block general
+	pool_directory        pool
+	pseudopotential       BFD
+	basis                 BFD-T-normf0
+%endblock
+
+%block mixed
+	max_iteration 	      3            
+	Energy_Cutoff         500.0 eV      
+	float_value  		  3.14e10                   
+	filename	  		  'sample read input.txt'                 
+	phonon-energy 		  344  cm**-1   
+%endblock  
+
+
+# Read molecule's geometry directly from the xyz file
+
+# molecule caffeine.xyz   
+
+
+# An alternative way to provide coordinates
+
+%block Coordinates
+  C        0.00000        1.40272        0.00000
+  H        0.00000        2.49029        0.00000
+  C       -1.21479        0.70136        0.00000
+  H       -2.15666        1.24515        0.00000
+  C       -1.21479       -0.70136        0.00000
+  H       -2.15666       -1.24515        0.00000
+  C        0.00000       -1.40272        0.00000
+  H        0.00000       -2.49029        0.00000
+  C        1.21479       -0.70136        0.00000
+  H        2.15666       -1.24515        0.00000
+  C        1.21479        0.70136        0.00000
+  H        2.15666        1.24515        0.00000
+%endblock  
+
+
+
+
+
+# %include pool/BFD-T.bfinfo     
+
+
+
+### To be implemented (large file reading support, possibly hdf5 files)
+
+#%include TZ_1M_500.det
+#%include jastrow_good_b3lyp.0          
 
