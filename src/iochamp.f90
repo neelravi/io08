@@ -7,23 +7,27 @@ PROGRAM iochamp
   implicit none
 !--------------------------------------------------------------- Local Variables
   integer, parameter         :: maxa = 100
-  logical                    :: doit, debug, check, val
-  character(len=72)          :: fname, axis, status, filename, title, molecule_name, key
+  logical                    :: doit, debug, check, val, logic(10)
+  logical                    :: beginning, ending
+  character(len=72)          :: fname, axis, status, filename, title
+  character(len=72)          :: molecule_name, key, comment
   character(2)               :: symbol(maxa)
-  integer(sp)                :: i, j, ia, na, external_entry
+  character(len=20)          :: chunks(10), subblock(10)
+  character(len=30)          :: keyword(5), argument(5)
+  integer(sp)                :: i, j, ia, na, external_entry, number_of_atoms
   integer(sp)                :: isa(maxa)
   real(sp)                   :: wmix
   real(dp)                   :: cutoff, phonon_energy, factor
   real(dp)                   :: xa(3, maxa)
   real(dp)                   :: listr(maxa)
-  type(block_fdf)            :: bfdf
-  type(parsed_line), pointer :: pline
+  type(block_fdf)            :: bfdf, bfdf2
+  type(parsed_line), pointer :: pline, pline2
   !type(fdf_file)             :: fdffile 
   integer                    :: nextorb, nblk_max, nopt_iter, max_iteration, max_iter
   real(dp)                   :: energy_tol
   real(dp)                   :: sr_tau, sr_eps, sr_adiag 
-  character(len=15)          :: real_format = '(A, T20, F8.5)'
-  character(len=15)          :: int_format = '(A, T20, I8)'
+  character(len=20)          :: real_format = '(A, T20, F8.5)'
+  character(len=20)          :: int_format = '(A, T20, I8)'
 
 !------------------------------------------------------------------------- BEGIN
 
@@ -53,16 +57,16 @@ PROGRAM iochamp
 
 
 ! floats (keyword, default_value) variable is assigned default_value when keyword is not present
-  sr_tau = fdf_double('sr_tau', 0.025d0)
+  sr_tau = fdf_get('sr_tau', 0.025d0)
   write(6,fmt=real_format) 'sr_tau:', sr_tau
 
-  sr_eps = fdf_double('sr_eps', 0.001d0)
+  sr_eps = fdf_get('sr_eps', 0.001d0)
   write(6,fmt=real_format) 'sr_eps:', sr_eps
 
-  sr_adiag = fdf_double('sr_adiag', 0.01d0)
+  sr_adiag = fdf_get('sr_adiag', 0.01d0)
   write(6,fmt=real_format) 'sr_adiag:', sr_adiag
 
-  energy_tol = fdf_double('sr_tau', 0.00001d0)
+  energy_tol = fdf_get('energy_tol', 0.00001d0)
   write(6,fmt=real_format) 'energy_tol:', energy_tol
 
 ! logical :: true, .true., yes, T, and TRUE are equivalent
@@ -80,35 +84,51 @@ PROGRAM iochamp
 
 
 ! block containing other key-value pairs (currently not working)  
-!   if (fdf_block('optimization_flags', bfdf)) then
-!       ia = 1
-!       do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
-! !        doit = fdf_bboolean(pline, 1)        
-!         doit = fdf_boolean("optimize_wavefunction", .true.)
-!         write(6,*) 'optimize_wavefunction', doit
+  if (fdf_block('optimization_flags', bfdf)) then
+    write(*,*) "inside opt block"
+    i = 1
+    do while(fdf_bline(bfdf, pline))   
+      write(*,*) "some debug info pline" , pline%ntokens, pline%line
+      keyword(i) = fdf_bnames(pline, 1)
+      argument(i) = fdf_bnames(pline, 2)
+      i = i + 1
+    enddo
+  endif
 
-!         doit = fdf_boolean('optimize_ci', .true.)
-!         write(6,*) 'optimize_ci', doit
 
-!         doit = fdf_boolean('optimize_jastrow', .true.)
-!         write(6,*) 'optimize_jastrow:', doit
+  write(6,'(A,4X)') 'keywords', (keyword(i), i = 1, 4)
+  write(6,'(A,4X)') 'arguments', (argument(i), i = 1, 4)
 
-!         doit = fdf_boolean('optimize_orbitals', .true.)
-!         write(6,*) 'optimize_orbitals:', doit
-!       enddo
-!   endif
+  do i = 1, 4
+    write(*,*) "conversion" , fdf_boolean(argument(i), .false.)
+  enddo
+  
+!  write(6,'(A,4X)') 'optimize_wavefunction using bline', (subblock(i), i = 1, 4)
 
-  doit = fdf_boolean("opt.optimize_wavefunction", .true.)
-  write(6,*) 'optimize_wavefunction', doit
+  if (fdf_block('general', bfdf)) then
+    write(*,*) "inside general block"
+    i = 1
+    do while(fdf_bline(bfdf, pline))    
+      doit = fdf_bsearch(pline, "pool")    
+      write(*,*) "pool found", doit      
+      i = i + 1
+    enddo
+  endif
 
-  doit = fdf_boolean('opt.optimize_ci', .true.)
-  write(6,*) 'optimize_ci', doit
+  
 
-  doit = fdf_boolean('opt.optimize_jastrow', .true.)
-  write(6,*) 'optimize_jastrow:', doit
 
-  doit = fdf_boolean('opt.optimize_orbitals', .true.)
-  write(6,*) 'optimize_orbitals:', doit
+  doit = fdf_get("opt.optimize_wavefunction", .true.)
+  write(6,*) 'outside  optimize_wavefunction', doit
+
+  doit = fdf_get('opt.optimize_ci', .true.)
+  write(6,*) 'outside  optimize_ci', doit
+
+  doit = fdf_get('opt.optimize_jastrow', .true.)
+  write(6,*) 'outside  optimize_jastrow:', doit
+
+  doit = fdf_get('opt.optimize_orbitals', .true.)
+  write(6,*) 'outside  optimize_orbitals:', doit
 
 
 
@@ -119,22 +139,26 @@ PROGRAM iochamp
 
   if (fdf_defined('molecule')) then
       write(6,*) "molecule block has been defined :: molecule's geometry in angstrom units"
-      molecule_name =  fdf_string('molecule', 'h2o.xyz')
-      write(6,*) 'Name of xyz file:', molecule_name
-      
-      ia = 1
-      do while(fdf_bline(bfdf, pline))
-        symbol(ia) = fdf_bnames(pline, 1)
-        do i= 1, 3
-          xa(i,ia) = fdf_breals(pline, i)
+!      molecule_name =  fdf_string('molecule', 'h2o.xyz')
+!      write(6,*) 'Name of xyz file:', molecule_name
+      na = 24 ! debug
+      if (fdf_block('molecule', bfdf)) then
+        ia = 1
+        do while(fdf_bline(bfdf, pline))
+!          na = fdf_bintegers(pline, 1)
+!          write(*,*) na
+          symbol(ia) = fdf_bnames(pline, 1)
+          do i= 1, 3
+            xa(i,ia) = fdf_breals(pline, i)
+          enddo
+          ia = ia + 1
         enddo
-        ia = ia + 1
-      enddo
-      na = ia - 1 
+        na = ia - 1 
+      endif
   endif
   
     write(6,*) 'Coordinates from an external file:'
-    do ia = 1, na
+    do ia = 1, 24
       write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
     enddo
   
@@ -165,14 +189,25 @@ PROGRAM iochamp
 
   if (fdf_block('Other-Block', bfdf)) then
 
-!   Forward reading
+!   Forward reading 
+    write(6,*) 'beginning of other block  '
     ia = 1
+    write(*,*) "linecount", fdf_block_linecount("Other-Block")
+
     do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
-      symbol(ia) = fdf_bnames(pline, 1)
-      do i= 1, na
-        xa(i,ia) = fdf_breals(pline, i)
-      enddo
-      ia = ia + 1
+
+      if (pline%ntokens == 1) then      
+        number_of_atoms = fdf_bintegers(pline, 1)
+        write(*,*) "number of atoms", number_of_atoms
+      endif
+      na = 3
+      if (pline%ntokens == 4) then
+        symbol(ia) = fdf_bnames(pline, 1)
+        do i= 1, na
+          xa(i,ia) = fdf_breals(pline, i)
+        enddo
+        ia = ia + 1
+      endif
     enddo
 
     write(6,*) 'Other-Block (Forward):'
