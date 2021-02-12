@@ -277,7 +277,6 @@ contains
 
       !> Update the variables in the configartion with the values found in 'filename.xyz'
    subroutine CFG_read_xyz(coordinates, filename)
-
       type(coords), intent(inout)   :: coordinates
       character(len=*), intent(in)  :: filename
 
@@ -290,8 +289,6 @@ contains
       character(len=CFG_string_len) :: line
       character(len=CFG_name_len)   :: category
 
-
-
       open(my_unit, file=trim(filename), status="old", action="read")
       write(line_fmt, "(A,I0,A)") "(A", CFG_string_len, ")"
 
@@ -303,10 +300,8 @@ contains
          line_number = line_number + 1
          if (line_number == 1) then
             ! parse the line and store the number as number of atoms
-            call prepare_get_var(coordinates, "", CFG_string_type, 1, 1)
-             !! conversion needed here remove debug line below = line
-!            coordinates%natoms = 12
-            allocate(coordinates%cartesian(3,coordinates%natoms))
+            coordinates%natoms = adjustl(line)
+            allocate((coordinates%cartesian(3,coordinates%natoms)))
             write(*,*) "Number of atoms from the xyz file", coordinates%natoms
          elseif (line_number == 2) then
             ! parse the line and store the string as a comment 
@@ -314,12 +309,12 @@ contains
             write(*,*) "Comment from the xyz file", coordinates%comment 
          else
             ! parse the line and store the variables
-!            call prepare_get_var(coordinates, "", CFG_string_type, 1, 1)   ! first atom name & then position whr line starts
-!            call prepare_get_var(coordinates, "", CFG_real_type, 3, 2)   ! 3 for x,y,z & 2 is where numbers start
-!            real_data = cfg%vars(ix)%real_data
+            call prepare_get_var(coordinates, "", CFG_string_type, 1, 1)   ! 1 for element name and 1 is the position where line starts
+            call prepare_get_var(coordinates, "", CFG_real_type, 3, 2)   ! 3 for x,y,z and 2 is the position where numbers start
+            real_data = cfg%vars(ix)%real_data
 
-!            call parse_xyz(coordinates, line)
-!            coordinates%cartesian(3,coordinates%natoms)            
+            call parse_xyz(coordinates, line)
+            coordinates%cartesian(3,coordinates%natoms)            
          endif
       end do
 
@@ -341,8 +336,9 @@ contains
       logical                                              :: append
       character(len=CFG_string_len)                        :: line
 
-!      character(len=CFG_name_len)                          :: var_name, category
-!      integer                                              :: ix, equal_sign_ix
+      character(len=CFG_name_len)                          :: var_name, category
+      integer                                              :: ix, equal_sign_ix
+      logical                                              :: append
     
   
       ! Work on a copy
@@ -354,27 +350,27 @@ contains
       if (line == "") return
   
   
-      ! if (ix <= 0) then
-      !    ! Variable still needs to be created, for now store data as a string
-      !    ! call prepare_store_var(coordinates, trim(var_name), CFG_unknown_type, 1, &
-      !    !      "Not yet created", ix, .false.)
-      !    ! coordinates%vars(ix)%stored_data = line
-      ! else
-      !    if (append) then
-      !       coordinates%vars(ix)%stored_data = &
-      !            trim(coordinates%vars(ix)%stored_data) // trim(line)
-      !    else
-      !       coordinates%vars(ix)%stored_data = line
-      !    end if
+      if (ix <= 0) then
+         ! Variable still needs to be created, for now store data as a string
+         call prepare_store_var(cfg, trim(var_name), CFG_unknown_type, 1, &
+              "Not yet created", ix, .false.)
+         cfg%vars(ix)%stored_data = line
+      else
+         if (append) then
+            cfg%vars(ix)%stored_data = &
+                 trim(cfg%vars(ix)%stored_data) // trim(line)
+         else
+            cfg%vars(ix)%stored_data = line
+         end if
   
-      !    ! If type is known, read in values
-      !    if (coordinates%vars(ix)%var_type /= CFG_unknown_type) then
-      !       call read_variable(coordinates%vars(ix))
-      !    end if
-      ! end if
+         ! If type is known, read in values
+         if (cfg%vars(ix)%var_type /= CFG_unknown_type) then
+            call read_variable(cfg%vars(ix))
+         end if
+      end if
   
-      !! Store how the variable was set
-      ! coordinates%vars(ix)%set_by = set_by
+      ! Store how the variable was set
+      cfg%vars(ix)%set_by = set_by
   
     end subroutine parse_xyz
 
