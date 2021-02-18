@@ -40,7 +40,7 @@ energy_tol 	0.004
 # An alternative way to provide coordinates
 
 %block Coordinates
-  C    0.00000    1.40272    0
+  C    0.00000    1.40272    0   # can have comments in between or after the data  
   H    0.00000    2.49029    0
   C   -1.21479    0.70136    0
   H   -2.15666    1.24515    0
@@ -65,23 +65,19 @@ hypothetical molecule
 %endblock inline_xyz
 
 
-## Example explaining the optional comment line in xyz files
-
-%block inline_xyz2 
-3
-
-O   0   0.00000    0.11779
-H   0   0.75545   -0.47116
-H   0  -0.75545   -0.47116
-%endblock inline_xyz2
-
 
 ###  Read molecule's geometry directly from the xyz file
 
-%block molecule < "caffeine.xyz"
+%block molecule < caffeine.xyz
 
 
 
 ### Two blocks with the same name not supported. Ignored without warning
 
 %block molecule < "benzene.xyz"
+
+
+
+## To include another file having fdf syntax
+
+%include temp.fdf

@@ -242,13 +242,18 @@ PROGRAM iochamp
     enddo
   endif
 
+  write(6,'(A)')  
+
+  write(6,*) '------------------------------------------------------'
+
+
 
   if (fdf_block('inline_xyz2', bfdf)) then
     !   Forward reading 
-        write(6,*) 'Reading an inline_xyz block  '
+        write(6,*) 'Reading an inline_xyz2 block  '
         ia = 1
     
-        do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
+        do while(fdf_bline(bfdf, pline))
     
           if (pline%ntokens == 1) then      
             number_of_atoms = fdf_bintegers(pline, 1)
@@ -265,7 +270,7 @@ PROGRAM iochamp
           endif
         enddo
     
-        write(6,*) 'Inline XYZ Coordinates block:'
+        write(6,*) 'Inline XYZ2 Coordinates block:'
         do ia= 1, na
           write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
         enddo
