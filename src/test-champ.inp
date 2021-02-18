@@ -1,12 +1,12 @@
 title "A Sample QMC input file parsed by libfdf interfaced to CHAMP"
 
 nextorb   	280
-nblk_max 	200
+nblk_max 	  200
 nopt_iter   2
 
-sr_tau 		1.023
-sr_eps 		0.001
-sr_adiag 	0.05
+sr_tau 		  1.023
+sr_eps 		  0.001
+sr_adiag 	  0.05
 energy_tol 	0.004
 
 %block optimization_flags
@@ -27,24 +27,10 @@ energy_tol 	0.004
 %block mixed
 	max_iteration 	      3            
 	Energy_Cutoff         500.0 eV      
-	float_value  		  3.14e10                   
-	filename	  		  'sample read input.txt'                 
-	phonon-energy 		  344  cm**-1   
+	float_value  		      3.14e10                   
+	filename	  		      'sample read input.txt'                 
+	phonon-energy 		    344  cm**-1   
 %endblock  
-
-
-# Read molecule's geometry directly from the xyz file
-
-%block molecule < "caffeine.xyz"
-
-%block Other-Block 
-99
- Nh   1.500000  1.108000  -3.000000                                                                                                  
- Ox   0.333000  0.000000  45.000000                                                                                                  
- Pd  -1.431000  -1.108000  20.000000                                                                                              
-%endblock Other-Block                                                                                                               
-
-
 
 
 # An alternative way to provide coordinates
@@ -66,14 +52,18 @@ energy_tol 	0.004
 
 
 
+%block inline_xyz 
+3
+molecule name unknown
+ Nh   1.50  1.108000      -3.
+ Ox   0.333000  0.         45.
+ Pd  -1.431000  -1.108000  20.
+%endblock inline_xyz
 
 
-# %include pool/BFD-T.bfinfo     
 
 
+###  Read molecule's geometry directly from the xyz file
 
-### To be implemented (large file reading support, possibly hdf5 files)
-
-#%include TZ_1M_500.det
-#%include jastrow_good_b3lyp.0          
+### %block molecule < "caffeine.xyz"
 

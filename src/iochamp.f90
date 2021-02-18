@@ -81,6 +81,9 @@ PROGRAM iochamp
   phonon_energy = fdf_physical('phonon-energy', 0.01d0, 'eV')
   write(6,fmt=real_format) 'Phonon Energy:', phonon_energy
 
+  write(6,'(A)')  
+
+  write(6,*) '------------------------------------------------------'
 
 
 ! block containing other key-value pairs (currently not working)  
@@ -115,6 +118,9 @@ PROGRAM iochamp
     enddo
   endif
 
+  write(6,'(A)')  
+
+  write(6,*) '------------------------------------------------------'
   
 
 
@@ -131,38 +137,46 @@ PROGRAM iochamp
   write(6,*) 'outside  optimize_orbitals:', doit
 
 
-
-
   max_iter = fdf_integer('max_iteration', 100)
   write(6,*) 'Examples: maximum_iter =', max_iter
 
 
-  if (fdf_defined('molecule')) then
-      write(6,*) "molecule block has been defined :: molecule's geometry in angstrom units"
-!      molecule_name =  fdf_string('molecule', 'h2o.xyz')
-!      write(6,*) 'Name of xyz file:', molecule_name
-      na = 24 ! debug
-      if (fdf_block('molecule', bfdf)) then
-        ia = 1
-        do while(fdf_bline(bfdf, pline))
-!          na = fdf_bintegers(pline, 1)
-!          write(*,*) na
-          symbol(ia) = fdf_bnames(pline, 1)
-          do i= 1, 3
-            xa(i,ia) = fdf_breals(pline, i)
-          enddo
-          ia = ia + 1
-        enddo
-        na = ia - 1 
-      endif
-  endif
+
+  write(6,'(A)')  
+
+  write(6,*) '------------------------------------------------------'
+
+
+
+!   if (fdf_defined('molecule')) then
+!       write(6,*) "molecule block has been defined :: molecule's geometry in angstrom units"
+! !      molecule_name =  fdf_string('molecule', 'h2o.xyz')
+! !      write(6,*) 'Name of xyz file:', molecule_name
+!       na = 24 ! debug
+!       if (fdf_block('molecule', bfdf)) then
+!         ia = 1
+!         do while(fdf_bline(bfdf, pline))
+! !          na = fdf_bintegers(pline, 1)
+! !          write(*,*) na
+!           symbol(ia) = fdf_bnames(pline, 1)
+!           do i= 1, 3
+!             xa(i,ia) = fdf_breals(pline, i)
+!           enddo
+!           ia = ia + 1
+!         enddo
+!         na = ia - 1 
+!       endif
+!   endif
   
-    write(6,*) 'Coordinates from an external file:'
-    do ia = 1, 24
-      write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
-    enddo
+!     write(6,*) 'Coordinates from an external file:'
+!     do ia = 1, 24
+!       write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
+!     enddo
   
 
+  write(6,'(A)')  
+
+  write(6,*) '------------------------------------------------------'
 
 
 !  Molecule coordinate block begins here  
@@ -185,10 +199,14 @@ PROGRAM iochamp
   enddo
 
 !  Molecule coordinate block ends here
+  write(6,*) '------------------------------------------------------'
+
+  write(6,'(A)')  
+
+  write(6,*) '------------------------------------------------------'
 
 
-  if (fdf_block('Other-Block', bfdf)) then
-
+  if (fdf_block('inline_xyz', bfdf)) then
 !   Forward reading 
     write(6,*) 'beginning of other block  '
     ia = 1
@@ -200,7 +218,13 @@ PROGRAM iochamp
         number_of_atoms = fdf_bintegers(pline, 1)
         write(*,*) "number of atoms", number_of_atoms
       endif
-      na = 3
+      na = number_of_atoms
+
+      if (pline%ntokens == 1) then      
+        molecule_name =  fdf_string('', 'Unknown molecule') 
+        write(*,*) "Comment from the XYZ coordinate file", molecule_name
+      endif
+
       if (pline%ntokens == 4) then
         symbol(ia) = fdf_bnames(pline, 1)
         do i= 1, na
@@ -210,73 +234,78 @@ PROGRAM iochamp
       endif
     enddo
 
-    write(6,*) 'Other-Block (Forward):'
-    do ia= 1, na
-      write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
-    enddo
-
-!   Backward reading
-    ia = 1
-    do while((fdf_bbackspace(bfdf, pline)) .and. (ia .le. na))
-      symbol(ia) = fdf_bnames(pline, 1)
-      do i= 1, na
-        xa(i,ia) = fdf_breals(pline, i)
-      enddo
-      ia = ia + 1
-    enddo
-
-    write(6,*) 'Other-Block (Backward):'
-    do ia= 1, na
-      write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
-    enddo
-
-!   Forward reading
-    ia = 1
-    do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
-      symbol(ia) = fdf_bnames(pline, 1)
-      do i= 1, na
-        xa(i,ia) = fdf_breals(pline, i)
-      enddo
-      ia = ia + 1
-    enddo
-
-    write(6,*) 'Other-Block (Forward):'
-    do ia= 1, na
-      write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
-    enddo
-
-!   Forward reading with rewind
-    call fdf_brewind(bfdf)
-    ia = 1
-    do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
-      symbol(ia) = fdf_bnames(pline, 1)
-      do i= 1, na
-        xa(i,ia) = fdf_breals(pline, i)
-      enddo
-      ia = ia + 1
-    enddo
-
-    write(6,*) 'Other-Block (Forward-with-rewind):'
+    write(6,*) 'Inline XYZ Coordinates block:'
     do ia= 1, na
       write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
     enddo
   endif
 
-  if ( fdf_block('ListBlock',bfdf) ) then
-     i = 0
-     do while ( fdf_bline(bfdf,pline) )
-        i = i + 1
-        na = fdf_bnlists(pline)
-        write(*,'(2(a,i0),a)') 'Listblock line: ',i,' has ',na,' lists'
-        do ia = 1 , na
-           j = -1
-           call fdf_bilists(pline,ia,j,isa)
-           write(*,'(tr5,2(a,i0),a)') 'list ',ia,' has ',j,' entries'
-           call fdf_bilists(pline,ia,j,isa)
-           write(*,'(tr5,a,1000(tr1,i0))') 'list: ',isa(1:j)
-        end do
-     end do
-  end if
+
+
+
+
+! !   Backward reading
+!     ia = 1
+!     do while((fdf_bbackspace(bfdf, pline)) .and. (ia .le. na))
+!       symbol(ia) = fdf_bnames(pline, 1)
+!       do i= 1, na
+!         xa(i,ia) = fdf_breals(pline, i)
+!       enddo
+!       ia = ia + 1
+!     enddo
+
+!     write(6,*) 'Other-Block (Backward):'
+!     do ia= 1, na
+!       write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
+!     enddo
+
+! !   Forward reading
+!     ia = 1
+!     do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
+!       symbol(ia) = fdf_bnames(pline, 1)
+!       do i= 1, na
+!         xa(i,ia) = fdf_breals(pline, i)
+!       enddo
+!       ia = ia + 1
+!     enddo
+
+!     write(6,*) 'Other-Block (Forward):'
+!     do ia= 1, na
+!       write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
+!     enddo
+
+! !   Forward reading with rewind
+!     call fdf_brewind(bfdf)
+!     ia = 1
+!     do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
+!       symbol(ia) = fdf_bnames(pline, 1)
+!       do i= 1, na
+!         xa(i,ia) = fdf_breals(pline, i)
+!       enddo
+!       ia = ia + 1
+!     enddo
+
+!     write(6,*) 'Other-Block (Forward-with-rewind):'
+!     do ia= 1, na
+!       write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
+!     enddo
+
+
+!   if ( fdf_block('ListBlock',bfdf) ) then
+!      i = 0
+!      do while ( fdf_bline(bfdf,pline) )
+!         i = i + 1
+!         na = fdf_bnlists(pline)
+!         write(*,'(2(a,i0),a)') 'Listblock line: ',i,' has ',na,' lists'
+!         do ia = 1 , na
+!            j = -1
+!            call fdf_bilists(pline,ia,j,isa)
+!            write(*,'(tr5,2(a,i0),a)') 'list ',ia,' has ',j,' entries'
+!            call fdf_bilists(pline,ia,j,isa)
+!            write(*,'(tr5,a,1000(tr1,i0))') 'list: ',isa(1:j)
+!         end do
+!      end do
+!   end if
 
   ! Check lists
   if ( fdf_islinteger('MyList') .and. fdf_islist('MyList') &
