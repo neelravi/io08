@@ -165,12 +165,7 @@ PROGRAM iochamp
             write(*,*) "number of atoms", number_of_atoms
           endif
           na = number_of_atoms
-    
-          if (pline%ntokens == 1) then      
-!            molecule_name =  fdf_bnames(pline, 1) 
-            molecule_name =  fdf_get('molecule', 'Unknown molecule') 
-          endif
-    
+        
           if (pline%ntokens == 4) then
             symbol(ia) = fdf_bnames(pline, 1)
             do i= 1, 3
@@ -224,17 +219,13 @@ PROGRAM iochamp
     write(6,*) 'Reading an inline_xyz block  '
     ia = 1
 
-    do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
+    do while((fdf_bline(bfdf, pline)))
 
-      if (pline%ntokens == 1) then      
+      if (pline%ntokens == 1) then
         number_of_atoms = fdf_bintegers(pline, 1)
         write(*,*) "Number of atoms", number_of_atoms
       endif
       na = number_of_atoms
-
-      if (pline%ntokens == 1) then      
-        molecule_name =  fdf_string('', 'Unknown molecule') 
-      endif
 
       if (pline%ntokens == 4) then
         symbol(ia) = fdf_bnames(pline, 1)
@@ -264,11 +255,7 @@ PROGRAM iochamp
             write(*,*) "Number of atoms", number_of_atoms
           endif
           na = number_of_atoms
-    
-          if (pline%ntokens == 1) then      
-            molecule_name =  fdf_string('', 'Unknown molecule') 
-          endif
-    
+        
           if (pline%ntokens == 4) then
             symbol(ia) = fdf_bnames(pline, 1)
             do i= 1, 3
