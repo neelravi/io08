@@ -24,13 +24,13 @@ energy_tol 	0.004
 	basis                 BFD-T-normf0
 %endblock
 
-%block mixed
-	max_iteration 	      3            
-	Energy_Cutoff         500.0 eV      
+
+# Initial spaces, in-between tabs do not matter
+	    max_iteration 	          2147483647            # Max allowed int
+	Energy_Cutoff           500.0 eV      
 	float_value  		      3.14e10                   
 	filename	  		      'sample read input.txt'                 
 	phonon-energy 		    344  cm**-1   
-%endblock  
 
 
 # An alternative way to provide coordinates
@@ -59,8 +59,6 @@ molecule name unknown
  Ox   0.333000  0.         45.
  Pd  -1.431000  -1.108000  20.
 %endblock inline_xyz
-
-
 
 
 ###  Read molecule's geometry directly from the xyz file

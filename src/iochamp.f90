@@ -23,10 +23,10 @@ PROGRAM iochamp
   type(block_fdf)            :: bfdf, bfdf2
   type(parsed_line), pointer :: pline, pline2
   !type(fdf_file)             :: fdffile 
-  integer                    :: nextorb, nblk_max, nopt_iter, max_iteration, max_iter
-  real(dp)                   :: energy_tol
+  integer                    :: nextorb, nblk_max, nopt_iter, max_iteration, max_iter, linecount
+  real(dp)                   :: energy_tol, float_value
   real(dp)                   :: sr_tau, sr_eps, sr_adiag 
-  character(len=20)          :: real_format = '(A, T20, F8.5)'
+  character(len=20)          :: real_format = '(A, T20, F14.5)'
   character(len=20)          :: int_format = '(A, T20, I8)'
 
 !------------------------------------------------------------------------- BEGIN
@@ -40,10 +40,6 @@ PROGRAM iochamp
 ! strings/characters
   fname = fdf_string('title', 'Default title')
   write(6,'(A)') 'title of the calculation :: ', fname
-
-  molecule_name = fdf_string('molecule', 'default_filename.txt')
-  write(6,'(A)') 'Name of the molecule file read from the file:', molecule_name
-
 
 ! Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
   nextorb = fdf_integer('nextorb', 0)
@@ -75,37 +71,48 @@ PROGRAM iochamp
 
 
 ! mixed types in one line (for example, reading a number with units)
+
+  max_iter = fdf_integer('max_iteration', 100)
+  write(6,*) 'Examples: maximum_iter =', max_iter
+
+
+  float_value = fdf_get('float_value', 0.00001d0)
+  write(6,*) 'float_value :: ', float_value
+
+
   cutoff = fdf_physical('Energy_Cutoff', 8.d0, 'Ry')
-  write(6,fmt=real_format) 'Energy CutOff:', cutoff, " eV"
+  write(6,fmt=real_format) 'Energy CutOff in Rydberg :: ', cutoff
 
   phonon_energy = fdf_physical('phonon-energy', 0.01d0, 'eV')
-  write(6,fmt=real_format) 'Phonon Energy:', phonon_energy
+  write(6,fmt=real_format) 'Phonon Energy in eV :: ', phonon_energy
 
   write(6,'(A)')  
 
   write(6,*) '------------------------------------------------------'
 
 
-! block containing other key-value pairs (currently not working)  
+! block containing other key-value pairs :: A temporary workaround  
   if (fdf_block('optimization_flags', bfdf)) then
-    write(*,*) "inside opt block"
+    write(*,*) "inside optimization_flags block"
+    linecount = fdf_block_linecount("optimization_flags")    
     i = 1
     do while(fdf_bline(bfdf, pline))   
-      write(*,*) "some debug info pline" , pline%ntokens, pline%line
+!      write(*,*) "some debug info pline" , pline%ntokens, pline%line
       keyword(i) = fdf_bnames(pline, 1)
       argument(i) = fdf_bnames(pline, 2)
       i = i + 1
     enddo
   endif
 
-
-  write(6,'(A,4X)') 'keywords', (keyword(i), i = 1, 4)
-  write(6,'(A,4X)') 'arguments', (argument(i), i = 1, 4)
-
-  do i = 1, 4
-    write(*,*) "conversion" , fdf_boolean(argument(i), .false.)
+  do i = 1, linecount
+    write(6,'(*(A,4X,A))') keyword(i), argument(i)
   enddo
+
+
+  write(6,'(A)')  
+  write(6,*) '------------------------------------------------------'
   
+
 !  write(6,'(A,4X)') 'optimize_wavefunction using bline', (subblock(i), i = 1, 4)
 
   if (fdf_block('general', bfdf)) then
@@ -123,22 +130,19 @@ PROGRAM iochamp
   write(6,*) '------------------------------------------------------'
   
 
-
-  doit = fdf_get("opt.optimize_wavefunction", .true.)
+!  This block currently fails as it is not possible to parse within the scope of a block
+  doit = fdf_get("optimize_wavefunction", .false.)
   write(6,*) 'outside  optimize_wavefunction', doit
 
-  doit = fdf_get('opt.optimize_ci', .true.)
+  doit = fdf_get('opt.optimize_ci', .false.)
   write(6,*) 'outside  optimize_ci', doit
 
-  doit = fdf_get('opt.optimize_jastrow', .true.)
+  doit = fdf_get('opt.optimize_jastrow', .false.)
   write(6,*) 'outside  optimize_jastrow:', doit
 
-  doit = fdf_get('opt.optimize_orbitals', .true.)
+  doit = fdf_get('opt.optimize_orbitals', .false.)
   write(6,*) 'outside  optimize_orbitals:', doit
 
-
-  max_iter = fdf_integer('max_iteration', 100)
-  write(6,*) 'Examples: maximum_iter =', max_iter
 
 
 
@@ -152,7 +156,7 @@ PROGRAM iochamp
     !   External file reading
         write(6,*) 'beginning of external file coordinates block  '
         ia = 1
-        write(*,*) "linecount", fdf_block_linecount("molecule")
+!        write(*,*) "linecount", fdf_block_linecount("molecule")
     
         do while((fdf_bline(bfdf, pline)))
 
@@ -163,7 +167,7 @@ PROGRAM iochamp
           na = number_of_atoms
     
           if (pline%ntokens == 1) then      
-            molecule_name =  fdf_string('', 'Unknown molecule') 
+            molecule_name =  fdf_string('molecule', 'Unknown molecule') 
             write(6,'(A, 4X, A)') "Comment from the XYZ coordinate external file", molecule_name
           endif
     
@@ -180,26 +184,6 @@ PROGRAM iochamp
   do ia= 1, na
     write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
   enddo
-  
-        
-
-
-
-!       na = 24 ! debug
-!       if (fdf_block('molecule', bfdf)) then
-!         ia = 1
-!         do while(fdf_bline(bfdf, pline))
-! !          na = fdf_bintegers(pline, 1)
-! !          write(*,*) na
-!           symbol(ia) = fdf_bnames(pline, 1)
-!           do i= 1, 3
-!             xa(i,ia) = fdf_breals(pline, i)
-!           enddo
-!           ia = ia + 1
-!         enddo
-!         na = ia - 1 
-!       endif
-!   endif
   
  
 
@@ -237,15 +221,14 @@ PROGRAM iochamp
 
   if (fdf_block('inline_xyz', bfdf)) then
 !   Forward reading 
-    write(6,*) 'beginning of other block  '
+    write(6,*) 'Reading an inline_xyz block  '
     ia = 1
-    write(*,*) "linecount", fdf_block_linecount("Other-Block")
 
     do while((fdf_bline(bfdf, pline)) .and. (ia .le. na))
 
       if (pline%ntokens == 1) then      
         number_of_atoms = fdf_bintegers(pline, 1)
-        write(*,*) "number of atoms", number_of_atoms
+        write(*,*) "Number of atoms", number_of_atoms
       endif
       na = number_of_atoms
 
