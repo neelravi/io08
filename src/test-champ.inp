@@ -65,5 +65,5 @@ molecule name unknown
 
 ###  Read molecule's geometry directly from the xyz file
 
-### %block molecule < "caffeine.xyz"
+%block molecule < "caffeine.xyz"
 

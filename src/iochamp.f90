@@ -148,10 +148,43 @@ PROGRAM iochamp
 
 
 
-!   if (fdf_defined('molecule')) then
-!       write(6,*) "molecule block has been defined :: molecule's geometry in angstrom units"
-! !      molecule_name =  fdf_string('molecule', 'h2o.xyz')
-! !      write(6,*) 'Name of xyz file:', molecule_name
+  if (fdf_block('molecule', bfdf)) then
+    !   External file reading
+        write(6,*) 'beginning of external file coordinates block  '
+        ia = 1
+        write(*,*) "linecount", fdf_block_linecount("molecule")
+    
+        do while((fdf_bline(bfdf, pline)))
+
+          if (pline%ntokens == 1) then      
+            number_of_atoms = fdf_bintegers(pline, 1)
+            write(*,*) "number of atoms", number_of_atoms
+          endif
+          na = number_of_atoms
+    
+          if (pline%ntokens == 1) then      
+            molecule_name =  fdf_string('', 'Unknown molecule') 
+            write(6,'(A, 4X, A)') "Comment from the XYZ coordinate external file", molecule_name
+          endif
+    
+          if (pline%ntokens == 4) then
+            symbol(ia) = fdf_bnames(pline, 1)
+            do i= 1, 3
+              xa(i,ia) = fdf_breals(pline, i)
+            enddo
+            ia = ia + 1
+          endif
+        enddo
+    endif
+  write(6,*) 'Coordinates from Molecule block: External file'
+  do ia= 1, na
+    write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
+  enddo
+  
+        
+
+
+
 !       na = 24 ! debug
 !       if (fdf_block('molecule', bfdf)) then
 !         ia = 1
@@ -168,11 +201,7 @@ PROGRAM iochamp
 !       endif
 !   endif
   
-!     write(6,*) 'Coordinates from an external file:'
-!     do ia = 1, 24
-!       write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
-!     enddo
-  
+ 
 
   write(6,'(A)')  
 
@@ -227,7 +256,7 @@ PROGRAM iochamp
 
       if (pline%ntokens == 4) then
         symbol(ia) = fdf_bnames(pline, 1)
-        do i= 1, na
+        do i= 1, 3
           xa(i,ia) = fdf_breals(pline, i)
         enddo
         ia = ia + 1
