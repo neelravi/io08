@@ -58,10 +58,10 @@ energy_tol 	0.004
 
 %block inline_xyz 
 3
-hypothetical molecule
- Nh   1.50  1.108000      -3
- Ox   0.333000  0         45
- Pd  -1.431000  -1.108000  20
+
+O   4.013   0.831  -9.083  
+H   4.941   0.844  -8.837  
+H   3.750  -0.068  -9.293  
 %endblock inline_xyz
 
 
@@ -81,3 +81,14 @@ hypothetical molecule
 ## To include another file having fdf syntax
 
 %include temp.fdf
+
+
+
+## Lists
+
+%block ListBlock
+  list_integers [1 to 6 7 9 10 ] [ 1 to 7 8 9 11 12 ]
+%endblock ListBlock
+
+
+list_floats   [ 0.94725807 -0.09274559 -0.05238276 -0.05238264 -0.04867531 -0.04162750 -0.04054186 -0.04017050 -0.04017045 -0.02963522 -0.02749165 -0.02351945 0.02056895 0.02056894 -0.01996166 0.01987062 0.01987060]

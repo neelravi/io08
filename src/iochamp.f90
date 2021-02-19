@@ -16,6 +16,7 @@ PROGRAM iochamp
   character(len=30)          :: keyword(5), argument(5)
   integer(sp)                :: i, j, ia, na, external_entry, number_of_atoms
   integer(sp)                :: isa(maxa)
+  real(dp)                   :: coeff(maxa)
   real(sp)                   :: wmix
   real(dp)                   :: cutoff, phonon_energy, factor
   real(dp)                   :: xa(3, maxa)
@@ -276,93 +277,47 @@ PROGRAM iochamp
         enddo
       endif
     
+      write(6,'(A)')  
+
+      write(6,*) '------------------------------------------------------'
     
+        
 
 
 
-!   if ( fdf_block('ListBlock',bfdf) ) then
-!      i = 0
-!      do while ( fdf_bline(bfdf,pline) )
-!         i = i + 1
-!         na = fdf_bnlists(pline)
-!         write(*,'(2(a,i0),a)') 'Listblock line: ',i,' has ',na,' lists'
-!         do ia = 1 , na
-!            j = -1
-!            call fdf_bilists(pline,ia,j,isa)
-!            write(*,'(tr5,2(a,i0),a)') 'list ',ia,' has ',j,' entries'
-!            call fdf_bilists(pline,ia,j,isa)
-!            write(*,'(tr5,a,1000(tr1,i0))') 'list: ',isa(1:j)
-!         end do
-!      end do
-!   end if
+  if ( fdf_block('ListBlock',bfdf) ) then
+     i = 0
+     do while ( fdf_bline(bfdf,pline) )
+        i = i + 1
+        na = fdf_bnlists(pline)
+        write(*,'(2(a,i0),a)') 'Listblock line: ',i,' has ',na,' lists'
+        do ia = 1 , na
+           j = -1
 
-  ! Check lists
-  if ( fdf_islinteger('MyList') .and. fdf_islist('MyList') &
-      .and. (.not. fdf_islreal('MyList')) ) then
-     na = -1
-     call fdf_list('MyList',na,isa)
-     if ( na < 2 ) stop 1
-     write(*,'(tr1,a,i0,a)') 'MyList has ',na,' entries'
-     call fdf_list('MyList',na,isa)
-     write(*,'(tr5,a,1000(tr1,i0))') 'MyList: ',isa(1:na)
-   else
-     write(*,*)'MyList was not recognized'
-     stop 1
-   end if
+           call fdf_bilists(pline,ia,j,isa)
+           write(*,'(tr5,2(a,i0),a)') 'list ',ia,' has ',j,' entries' 
+           call fdf_bilists(pline,ia,j,isa)
+           write(*,'(tr5,a,1000(tr1,i0))') 'list: ',isa(1:j)
 
-  if ( fdf_islinteger('MyListOne') .and. fdf_islist('MyListOne') &
-      .and. (.not. fdf_islreal('MyListOne')) ) then
-     na = -1
-     call fdf_list('MyListOne',na,isa)
-     if ( na /= 1 ) stop 1
-     write(*,'(tr1,a,i0,a)') 'MyListOne has ',na,' entries'
-     call fdf_list('MyListOne',na,isa)
-     write(*,'(tr5,a,1000(tr1,i0))') 'MyListOne: ',isa(1:na)
-  else
-     write(*,*)'MyListOne was not recognized'
-     stop 1
+        end do
+     end do
   end if
 
-  if ( fdf_islreal('MyListR') .and. fdf_islist('MyListR') &
-      .and. (.not. fdf_islinteger('MyListR')) ) then
+
+  if ( fdf_islreal('list_floats') .and. fdf_islist('list_floats') &
+      .and. (.not. fdf_islinteger('list_floats')) ) then
     na = -1
-    call fdf_list('MyListR',na,listr)
-    write(*,'(tr1,a,i0,a)') 'MyListR has ',na,' entries'
+    call fdf_list('list_floats',na,listr)
+    write(*,'(tr1,a,i0,a)') 'list_floats has ',na,' entries'
     if ( na < 2 ) stop 1
-    call fdf_list('MyListR',na,listr)
-    write(*,'(tr5,a,1000(tr1,f4.1))') 'MyListR: ',listr(1:na)
+    call fdf_list('list_floats',na,listr)
+    write(*,'(tr5,a,1000(tr1,f12.8))') 'list_floats: ',listr(1:na)
   else
-    write(*,*)'MyListR was not recognized'
+    write(*,*)'list_floats was not recognized'
     stop 1
   end if
 
-  if ( fdf_islreal('MyListROne') .and. fdf_islist('MyListROne') &
-      .and. (.not. fdf_islinteger('MyListROne')) ) then
-    na = -1
-    call fdf_list('MyListROne',na,listr)
-    if ( na /= 1 ) stop 1
-    write(*,'(tr1,a,i0,a)') 'MyListROne has ',na,' entries'
-    call fdf_list('MyListROne',na,listr)
-    write(*,'(tr5,a,1000(tr1,f4.1))') 'MyListROne: ',listr(1:na)
-  else
-    write(*,*)'MyListROne was not recognized'
-    stop 1
-  end if
 
-  if ( fdf_islist('externalentry') ) then
-     write(*,*) 'externalentry is a list'
-  else
-     write(*,*) 'externalentry is not a list'
-  end if
-
-  external_entry = fdf_integer('externalentry', 60)
-  write(6,*) 'ExternalEntry:', external_entry
-
-  axis   = fdf_string('AxisXY', 'Cartesian')
-  status = fdf_string('StatusXY', 'Enabled')
-  write(6,*) 'Axis: ', TRIM(axis), ' | ', TRIM(status)
-
-! Shutdown and deallocates fdf structure
   call fdf_shutdown()
 
 !----------------------------------------------------------------------------END
