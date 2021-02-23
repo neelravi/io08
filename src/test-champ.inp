@@ -68,7 +68,7 @@ H   3.750  -0.068  -9.293
 
 
 
-###  Read molecule's geometry directly from the xyz file
+###  Read molecule's geometry directly from the xyz file (filename should be given as is.)
 
 %block molecule < caffeine.xyz
 
@@ -76,7 +76,7 @@ H   3.750  -0.068  -9.293
 
 ### Two blocks with the same name not supported. Ignored without warning
 
-%block molecule < "benzene.xyz"
+%block molecule2 < benzene.xyz %dump
 
 
 
@@ -94,3 +94,10 @@ H   3.750  -0.068  -9.293
 
 
 list_floats   [ 0.94725807 -0.09274559 -0.05238276 -0.05238264 -0.04867531 -0.04162750 -0.04054186 -0.04017050 -0.04017045 -0.02963522 -0.02749165 -0.02351945 0.02056895 0.02056894 -0.01996166 0.01987062 0.01987060]
+
+
+###  Read determinants directly from the .det file 
+
+#%block determinants < TZ_1M_500.det # sample.det
+
+%block determinants < sample.det

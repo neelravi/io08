@@ -5,7 +5,6 @@
 *.lof
 *.log
 *.lot
-*.out
 *.toc
 auto/
 .DS_Store

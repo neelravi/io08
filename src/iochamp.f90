@@ -5,6 +5,7 @@ PROGRAM iochamp
   USE fdf
   USE prec
   USE parse
+  use io_fdf
   implicit none
 !--------------------------------------------------------------- Local Variables
   integer, parameter         :: maxa = 100
@@ -31,6 +32,11 @@ PROGRAM iochamp
   character(len=20)          :: real_format = '(A, T20, F14.5)'
   character(len=20)          :: int_format = '(A, T20, I8)'
 
+! for determinants sections
+  integer                    :: nelectrons, nalpha, nbeta, ndeterminants, nexcitation, iostat
+  integer, allocatable       :: det_alpha(:), det_beta(:)
+  real(dp), allocatable      :: det_coeff(:)
+  character(len=20)          :: temp1, temp2, temp3, temp4, temp5
 !------------------------------------------------------------------------- BEGIN
 
 ! Initialize
@@ -268,6 +274,43 @@ PROGRAM iochamp
       write(6,*) '------------------------------------------------------'
     
         
+      if (fdf_block('molecule2', bfdf)) then
+        !   External file reading
+            write(6,*) 'beginning of external file coordinates block  '
+            ia = 1
+    !        write(*,*) "linecount", fdf_block_linecount("molecule")
+        
+            do while((fdf_bline(bfdf, pline)))
+    
+              if (pline%ntokens == 1) then      
+                number_of_atoms = fdf_bintegers(pline, 1)
+                write(*,*) "number of atoms", number_of_atoms
+              endif
+              na = number_of_atoms
+            
+              if (pline%ntokens == 4) then
+                symbol(ia) = fdf_bnames(pline, 1)
+                do i= 1, 3
+                  xa(i,ia) = fdf_bvalues(pline, i)
+                enddo
+                ia = ia + 1
+              endif
+            enddo
+        endif
+      write(6,*) 'Coordinates from Molecule2 block: External file'
+      do ia= 1, na
+        write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
+      enddo
+      
+     
+    
+      write(6,'(A)')  
+    
+      write(6,*) '------------------------------------------------------'
+    
+    
+
+
 
 
 
@@ -302,6 +345,84 @@ PROGRAM iochamp
     write(*,*)'list_floats was not recognized'
     stop 1
   end if
+
+  write(6,'(A)')  
+    
+  write(6,*) '------------------------------------------------------'
+
+  write(6,'(A)')  " Determinants Block"
+
+  write(6,*) '------------------------------------------------------'
+
+
+  if (fdf_block('determinants', bfdf)) then
+    !   External file reading
+        write(6,*) 'beginning of external file determinant block  '
+        ia = 1
+
+!        call io_status()
+!        call fdf_printfdf()
+        print*, "printing label ", bfdf%label
+
+
+        print*, "pline obtained",  (fdf_bline(bfdf, pline))
+
+        open (unit=11,file='TZ_1M_500.det', iostat=iostat, action='read' )
+        read(11,*) temp1, temp2, nelectrons, temp3, nalpha
+!        write(*,'(a,1x,i3,1x,i3)') "write after read1", nelectrons, nalpha        
+        read(11,*)  temp1, ndeterminants, nexcitation        
+!        write(*,'(a,1x,i3, 1x, i3)') "write after read2", ndeterminants, nexcitation
+        read(11,*) (det_coeff(i), i=1,ndeterminants)
+        write(*,'(<ndeterminants>(f11.8,1x))') (det_coeff(i), i=1,ndeterminants)
+!        write(*,'(<ndeterminants>(f10.8, 1x))') (det_coeff(i), i=1,ndeterminants)
+        close(11)
+
+        
+          if(fdf_bsearch(pline, "&electrons")) then
+            nelectrons  =  integers(pline, 1)
+            nalpha      =  integers(pline, 2)
+            nbeta       = nelectrons - nalpha
+
+            write(*,*) "total number of       electrons ", nelectrons
+            write(*,*) "      number of alpha electrons ", nalpha        
+            write(*,*) "      number of beta  electrons ", nalpha
+            if (.not. allocated(det_alpha)) allocate(det_alpha(nalpha))
+            if (.not. allocated(det_beta)) allocate(det_beta(nbeta))
+          endif
+
+          if(fdf_bsearch(pline, "determinants")) then
+            ndeterminants   =  fdf_bintegers(pline, 1)          
+            nexcitation     =  fdf_bintegers(pline, 2)
+            write(*,*) "total number of determinants ", ndeterminants
+            write(*,*) "      number of excitations  ", nexcitation 
+            if (.not. allocated(det_coeff)) allocate(det_coeff(ndeterminants)) 
+          endif
+
+
+          na = nintegers(pline)
+          write(*,'(2(a,i0),a)') 'number of integers: ', na, ' integers'
+          write(*,'(tr5,a,<nalpha>(tr1,i0))') 'list: ', det_alpha(1:nalpha)
+
+
+!          endif
+!        enddo
+  endif
+
+  ! write(6,*) 'Coordinates from Molecule block: External file'
+  ! do ia= 1, na
+  !   write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
+  ! enddo
+  
+ 
+
+  write(6,'(A)')  
+
+  write(6,*) '------------------------------------------------------'
+
+
+
+
+
 
 
   call fdf_shutdown()
