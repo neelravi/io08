@@ -4,6 +4,7 @@
 PROGRAM iochamp
   USE fdf
   USE prec
+  USE parse
   implicit none
 !--------------------------------------------------------------- Local Variables
   integer, parameter         :: maxa = 100
@@ -13,8 +14,8 @@ PROGRAM iochamp
   character(len=72)          :: molecule_name, key, comment
   character(2)               :: symbol(maxa)
   character(len=20)          :: chunks(10), subblock(10)
-  character(len=30)          :: keyword(5), argument(5)
-  integer(sp)                :: i, j, ia, na, external_entry, number_of_atoms
+  character(len=30)          :: keyword(5) 
+  integer(sp)                :: i, j, ia, na, external_entry, number_of_atoms, ind
   integer(sp)                :: isa(maxa)
   real(dp)                   :: coeff(maxa)
   real(sp)                   :: wmix
@@ -24,7 +25,7 @@ PROGRAM iochamp
   type(block_fdf)            :: bfdf, bfdf2
   type(parsed_line), pointer :: pline, pline2
   !type(fdf_file)             :: fdffile 
-  integer                    :: nextorb, nblk_max, nopt_iter, max_iteration, max_iter, linecount
+  integer                    :: nextorb, nblk_max, nopt_iter, max_iteration, max_iter, linecount, argument(5)
   real(dp)                   :: energy_tol, float_value
   real(dp)                   :: sr_tau, sr_eps, sr_adiag 
   character(len=20)          :: real_format = '(A, T20, F14.5)'
@@ -42,7 +43,7 @@ PROGRAM iochamp
   fname = fdf_string('title', 'Default title')
   write(6,'(A)') 'title of the calculation :: ', fname
 
-! Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
+!Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
   nextorb = fdf_integer('nextorb', 0)
   write(6,fmt=int_format) 'Next Orb =', nextorb
 
@@ -66,7 +67,15 @@ PROGRAM iochamp
   energy_tol = fdf_get('energy_tol', 0.00001d0)
   write(6,fmt=real_format) 'energy_tol:', energy_tol
 
-! logical :: true, .true., yes, T, and TRUE are equivalent
+  nopt_iter = fdf_integer('a', 0)
+  write(6,fmt=int_format) 'a =', nopt_iter
+
+  nopt_iter = fdf_integer('b', 0)
+  write(6,fmt=int_format) 'b =', nopt_iter
+
+
+
+  ! logical :: true, .true., yes, T, and TRUE are equivalent
   debug = fdf_boolean('Debug', .TRUE.)
   write(6,'(A, L2)') 'Debug:', debug
 
@@ -92,22 +101,19 @@ PROGRAM iochamp
   write(6,*) '------------------------------------------------------'
 
 
-! block containing other key-value pairs :: A temporary workaround  
-  if (fdf_block('optimization_flags', bfdf)) then
-    write(*,*) "inside optimization_flags block"
-    linecount = fdf_block_linecount("optimization_flags")    
-    i = 1
-    do while(fdf_bline(bfdf, pline))   
-!      write(*,*) "some debug info pline" , pline%ntokens, pline%line
-      keyword(i) = fdf_bnames(pline, 1)
-      argument(i) = fdf_bnames(pline, 2)
-      i = i + 1
-    enddo
-  endif
+  ! block containing logical key-value pairs
+  doit = fdf_boolean("optimize_wavefunction", .True.)
+  write(6,*) ' optimize_wavefunction = ', doit
 
-  do i = 1, linecount
-    write(6,'(*(A,4X,A))') keyword(i), argument(i)
-  enddo
+  doit = fdf_boolean('optimize_ci', .True.)
+  write(6,*) ' optimize_ci = ', doit
+
+  doit = fdf_boolean('optimize_jastrow', .True.)
+  write(6,*) ' optimize_jastrow = ', doit
+
+  doit = fdf_boolean('optimize_orbitals', .True.)
+  write(6,*) ' optimize_orbitals = ', doit
+
 
 
   write(6,'(A)')  
@@ -130,26 +136,6 @@ PROGRAM iochamp
 
   write(6,*) '------------------------------------------------------'
   
-
-!  This block currently fails as it is not possible to parse within the scope of a block
-  doit = fdf_get("optimize_wavefunction", .false.)
-  write(6,*) 'outside  optimize_wavefunction', doit
-
-  doit = fdf_get('opt.optimize_ci', .false.)
-  write(6,*) 'outside  optimize_ci', doit
-
-  doit = fdf_get('opt.optimize_jastrow', .false.)
-  write(6,*) 'outside  optimize_jastrow:', doit
-
-  doit = fdf_get('opt.optimize_orbitals', .false.)
-  write(6,*) 'outside  optimize_orbitals:', doit
-
-
-
-
-  write(6,'(A)')  
-
-  write(6,*) '------------------------------------------------------'
 
 
 
