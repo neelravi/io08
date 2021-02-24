@@ -11,7 +11,7 @@ PROGRAM iochamp
   integer, parameter         :: maxa = 100
   logical                    :: doit, debug, check, val, logic(10)
   logical                    :: beginning, ending
-  character(len=72)          :: fname, axis, status, filename, title
+  character(len=72)          :: fname, axis, status, filename, title, fmt
   character(len=72)          :: molecule_name, key, comment
   character(2)               :: symbol(maxa)
   character(len=20)          :: chunks(10), subblock(10)
@@ -35,7 +35,7 @@ PROGRAM iochamp
 ! for determinants sections
   integer                    :: nelectrons, nalpha, nbeta, ndeterminants, nexcitation, iostat
   integer, allocatable       :: det_alpha(:), det_beta(:)
-  real(dp), allocatable      :: det_coeff(:)
+  real(selected_real_kind(6,15)), allocatable :: det_coeff(:)
   character(len=20)          :: temp1, temp2, temp3, temp4, temp5
 !------------------------------------------------------------------------- BEGIN
 
@@ -369,12 +369,14 @@ PROGRAM iochamp
 
         open (unit=11,file='TZ_1M_500.det', iostat=iostat, action='read' )
         read(11,*) temp1, temp2, nelectrons, temp3, nalpha
-!        write(*,'(a,1x,i3,1x,i3)') "write after read1", nelectrons, nalpha        
-        read(11,*)  temp1, ndeterminants, nexcitation        
-!        write(*,'(a,1x,i3, 1x, i3)') "write after read2", ndeterminants, nexcitation
+        write(*,'(a,1x,i3,1x,i3)') "write after read1", nelectrons, nalpha        
+        read(11,*)  temp1, ndeterminants, nexcitation   
+        allocate(det_coeff(ndeterminants))             
+        write(*,'(a,1x,i3, 1x, i3)') "write after read2", ndeterminants, nexcitation
         read(11,*) (det_coeff(i), i=1,ndeterminants)
-        write(*,'(<ndeterminants>(f11.8,1x))') (det_coeff(i), i=1,ndeterminants)
-!        write(*,'(<ndeterminants>(f10.8, 1x))') (det_coeff(i), i=1,ndeterminants)
+        write(fmt,*)  '(', ndeterminants, '(f11.8,1x))'
+        write(*,fmt) (det_coeff(i), i=1,ndeterminants)
+!        write(*,'(<ndeterminants>(f11.8, 1x))') (det_coeff(i), i=1,ndeterminants)    ! for Intel Fortran        
         close(11)
 
         
