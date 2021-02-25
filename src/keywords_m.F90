@@ -95,7 +95,7 @@ MODULE keywords
     public  ::  iworbd                                              ! which orbitals enter in which determinants
     public  ::  ianalyt_lap, analytic_laplacian                     ! analytic laplacian or not
 
-
+    public  ::  nspin1, ifock
     public  ::  nspin2                                              ! 1,2,3,-1,-2 -> nspin2b=abs(nspin2)
                                                                     !  nspin2   > 0  nspin2 sets of a, c parms, nspin2b sets of b parms
                                                                     !              nocuspb=0  parallel e-e cusp conditions satisfied (b=1/2,1/4)
@@ -117,7 +117,25 @@ MODULE keywords
     public  ::  cutjas,     cutoff_jastrow                          ! cutoff for Jastrow4,5,6 if cutjas=6,7
     public  ::  itau_eff,   itau_effective
 
-!    Following not yet added 
+    public  :: optimize_wavefunction
+    public  :: optimize_ci 
+    public  :: optimize_jastrow
+    public  :: optimize_orbitals 
+
+    public  :: ncore
+    public  :: nextorb
+    public  :: nopt_iter
+    public  :: no_active
+    public  :: nblk_max
+
+    public  :: sr_tau 
+    public  :: sr_eps 
+    public  :: sr_adiag
+    public  :: energy_tol
+    public  :: opt_method
+    public  :: multiple_adiag    
+
+    !    Following not yet added 
 !    rlobx(y) Lobachevsky parameters for Fock expansion
 !    ipq,iacc_rej,icross,icuspg,idiv_v
 
@@ -255,7 +273,7 @@ MODULE keywords
     integer, target                 ::  ianalyt_lap
     integer, pointer                ::  analytic_laplacian => ianalyt_lap
 
-    integer                         ::  nspin2                                              
+    integer                         ::  nspin1, nspin2 , ifock                                             
 
     integer, target                 ::  nord
     integer, pointer                ::  order_poly => nord
@@ -285,5 +303,25 @@ MODULE keywords
 
     real(dp), target                ::  itau_eff
     real(dp), pointer               ::  itau_effective => itau_eff
+
+
+    logical                         :: optimize_wavefunction
+    logical                         :: optimize_ci
+    logical                         :: optimize_jastrow
+    logical                         :: optimize_orbitals 
+    logical                         :: multiple_adiag
+
+    integer                         :: ncore
+    integer                         :: nextorb
+    integer                         :: nopt_iter
+    integer                         :: no_active
+    integer                         :: nblk_max
+
+    real(dp)                        :: sr_tau 
+    real(dp)                        :: sr_eps 
+    real(dp)                        :: sr_adiag
+    real(dp)                        :: energy_tol
+
+    character(len=20)               :: opt_method
 
 end module

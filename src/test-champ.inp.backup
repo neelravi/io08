@@ -1,0 +1,97 @@
+title "A Sample QMC input file parsed by libfdf interfaced to CHAMP"
+
+pool          ./pool
+pseudopot     BFD
+basis         BFD-T-normf0
+
+# %include global.fdf
+
+%block molecule < caffeine.xyz
+
+
+optimize_wavefunction 		1		      
+optimize_ci             = false
+optimize_jastrow		 	    yes       
+optimize_orbitals	        true
+
+
+sr_tau 		  0.025
+sr_eps 		  0.001
+sr_adiag 	  0.01
+energy_tol 	1.0E-5
+
+
+ncore       0     no_active   0
+nextorb   	280 ; nblk_max 	  200
+nopt_iter   2
+
+opt_method      sr_n 
+multiple_adiag  no
+
+
+
+# Initial spaces, in-between tabs do not matter
+	max_iteration 	      2147483647            # Max allowed int
+	Energy_Cutoff         500.0 eV      
+	float_value  		      3.14e10                   
+	filename	  		      'sample read input.txt'                 
+
+
+
+# An alternative way to provide coordinates
+
+%block Coordinates
+  C    0.00000    1.40272    0   # can have comments in between or after the data  
+  H    0.00000    2.49029    0
+  C   -1.21479    0.70136    0
+  H   -2.15666    1.24515    0
+  C   -1.21479   -0.70136    0
+  H   -2.15666   -1.24515    0
+  C    0.00000   -1.40272    0
+  H    0.00000   -2.49029    0
+  C    1.21479   -0.70136    0
+  H    2.15666   -1.24515    0
+  C    1.21479    0.70136    0
+  H    2.15666    1.24515    0
+%endblock  
+
+%block inline_xyz 
+3
+sample comment
+O   4.013   0.831  -9.083  
+H   4.941   0.844  -8.837  
+H   3.750  -0.068  -9.293  
+%endblock inline_xyz
+
+
+
+
+
+
+### Two blocks with the same name not supported. Ignored without warning
+
+%block molecule2 < benzene.xyz %dump
+
+
+
+## To include another file having fdf syntax
+
+%include temp.fdf
+
+
+
+## Lists
+
+%block ListBlock
+  list_integers [1 to 6 7 9 10 ] [ 1 to 7 8 9 11 12 ]
+%endblock ListBlock
+
+
+list_floats   [ 0.94725807 -0.09274559 -0.05238276 -0.05238264 -0.04867531 -0.04162750 -0.04054186 -0.04017050 -0.04017045 -0.02963522 ]
+
+
+###  Read determinants directly from the .det file 
+
+#%block determinants < TZ_1M_500.det # sample.det
+
+%block determinants < sample.det

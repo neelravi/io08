@@ -31,10 +31,9 @@ PROGRAM iochamp
   type(block_fdf)            :: bfdf, bfdf2
   type(parsed_line), pointer :: pline, pline2
   !type(fdf_file)             :: fdffile 
-  integer                    :: nextorb, nblk_max, nopt_iter, max_iteration, max_iter, linecount, argument(5)
-  real(dp)                   :: energy_tol, float_value
-  real(dp)                   :: sr_tau, sr_eps, sr_adiag 
-  character(len=20)          :: real_format = '(A, T20, F14.5)'
+  integer                    ::  max_iteration, max_iter, linecount, argument(5)
+  real(dp)                   :: float_value
+  character(len=20)          :: real_format = '(A, T20, F14.8)'
   character(len=20)          :: int_format = '(A, T20, I8)'
 
 ! for determinants sections
@@ -73,12 +72,34 @@ PROGRAM iochamp
   write(6,'(A)') 'filename jastrow derivatives :: ', file_jastrow_deriv
 
 
+! &optwf ioptwf 1 ioptci 1 ioptjas 1 ioptorb 1
+  optimize_wavefunction = fdf_boolean("optimize_wavefunction", .false.)
+  write(6,*) ' optimize_wavefunction = ', optimize_wavefunction
 
+  optimize_ci = fdf_boolean('optimize_ci', .false.)
+  write(6,*) ' optimize_ci = ', optimize_ci
+
+  optimize_jastrow = fdf_boolean('optimize_jastrow', .false.)
+  write(6,*) ' optimize_jastrow = ', optimize_jastrow
+
+  optimize_orbitals = fdf_boolean('optimize_orbitals', .false.)
+  write(6,*) ' optimize_orbitals = ', optimize_orbitals
+
+  write(6,'(A)')  
+  write(6,*) '------------------------------------------------------'
 
 
 !Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
+  ! &optwf ncore 0 nextorb 280 no_active 0
+  ! &optwf nblk_max 200 nopt_iter 2
+  ncore = fdf_integer('ncore', 0)
+  write(6,fmt=int_format) 'NCore =', ncore
+
   nextorb = fdf_integer('nextorb', 0)
   write(6,fmt=int_format) 'Next Orb =', nextorb
+
+  no_active = fdf_integer('no_active', 0)
+  write(6,fmt=int_format) 'no_active =', no_active
 
   nblk_max = fdf_integer('nblk_max', 0)
   write(6,fmt=int_format) 'nblk max =', nblk_max
@@ -88,6 +109,10 @@ PROGRAM iochamp
 
 
 ! floats (keyword, default_value) variable is assigned default_value when keyword is not present
+
+  ! &optwf sr_tau 0.025 sr_eps 0.001 sr_adiag 0.01
+  ! &optwf isample_cmat 0 energy_tol 0.0
+  
   sr_tau = fdf_get('sr_tau', 0.025d0)
   write(6,fmt=real_format) 'sr_tau:', sr_tau
 
@@ -100,11 +125,15 @@ PROGRAM iochamp
   energy_tol = fdf_get('energy_tol', 0.00001d0)
   write(6,fmt=real_format) 'energy_tol:', energy_tol
 
-  nopt_iter = fdf_integer('a', 0)
-  write(6,fmt=int_format) 'a =', nopt_iter
+  ! &optwf method sr_n multiple_adiag 0
 
-  nopt_iter = fdf_integer('b', 0)
-  write(6,fmt=int_format) 'b =', nopt_iter
+  opt_method = fdf_get('opt_method', "sr_n")
+  write(6,*) 'Optimization method ', opt_method
+
+  multiple_adiag = fdf_get('multiple_adiag', .false.)
+  write(6,*) 'multiple_adiag:', multiple_adiag
+
+
 
 
 
@@ -113,44 +142,34 @@ PROGRAM iochamp
   write(6,'(A, L2)') 'Debug:', debug
 
 
-! mixed types in one line (for example, reading a number with units)
-
-  max_iter = fdf_integer('max_iteration', 100)
-  write(6,*) 'Examples: maximum_iter =', max_iter
 
 
-  float_value = fdf_get('float_value', 0.00001d0)
-  write(6,*) 'float_value :: ', float_value
+! ianalyt_lap 1 isc 2 nspin1 1 nspin2 1 ifock 0
+  analytic_laplacian = fdf_get('ianalyt_lap', 1)
+  write(6,*) 'analytic laplacian from global.fdf pointer explained ', ianalyt_lap
+
+  nspin1 = fdf_get('nspin1', 1)
+  write(6,*) 'nspin1 from global.fdf ', nspin1
+
+  nspin2 = fdf_get('nspin2', 1)
+  write(6,*) 'nspin2 from global.fdf ', nspin2
+
+  ifock = fdf_get('ifock', 1)
+  write(6,*) 'ifock from global.fdf ', ifock
 
 
-  cutoff = fdf_physical('Energy_Cutoff', 8.d0, 'Ry')
-  write(6,fmt=real_format) 'Energy CutOff in Rydberg :: ', cutoff
+  ! mixed types in one line (for example, reading a number with units)
+  tau = fdf_get('tau', 0.05)
+  write(6,fmt=real_format) 'DMC tau = ', tau
 
-  phonon_energy = fdf_physical('phonon-energy', 0.01d0, 'eV')
-  write(6,fmt=real_format) 'Phonon Energy in eV :: ', phonon_energy
+  etrial = fdf_physical('etrial', -20.d0, 'eV')
+  write(6,fmt=real_format) 'Energy CutOff in eV :: ', energy_trial
 
   write(6,'(A)')  
 
   write(6,*) '------------------------------------------------------'
 
 
-  ! block containing logical key-value pairs
-  doit = fdf_boolean("optimize_wavefunction", .True.)
-  write(6,*) ' optimize_wavefunction = ', doit
-
-  doit = fdf_get('optimize_ci', .True.)
-  write(6,*) ' optimize_ci = ', doit
-
-  doit = fdf_get('optimize_jastrow', .True.)
-  write(6,*) ' optimize_jastrow = ', doit
-
-  doit = fdf_get('optimize_orbitals', .True.)
-  write(6,*) ' optimize_orbitals = ', doit
-
-
-
-  write(6,'(A)')  
-  write(6,*) '------------------------------------------------------'
   
 
 !  write(6,'(A,4X)') 'optimize_wavefunction using bline', (subblock(i), i = 1, 4)
@@ -219,17 +238,16 @@ PROGRAM iochamp
       ia = ia + 1
     enddo
     na = ia - 1 
+
   endif
 
-  write(6,*) 'Coordinates:'
-  do ia = 1, na
-    write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
-  enddo
+  if (fdf_block('Coordinates', bfdf)) then
+    write(6,*) 'Coordinates:'
+    do ia = 1, na
+      write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
+    enddo
+  endif
 
-!  Molecule coordinate block ends here
-  write(6,*) '------------------------------------------------------'
-
-  write(6,'(A)')  
 
   write(6,*) '------------------------------------------------------'
 
@@ -268,72 +286,72 @@ PROGRAM iochamp
 
 
 
-  if (fdf_block('inline_xyz2', bfdf)) then
-    !   Forward reading 
-        write(6,*) 'Reading an inline_xyz2 block  '
-        ia = 1
+  ! if (fdf_block('inline_xyz2', bfdf)) then
+  !   !   Forward reading 
+  !       write(6,*) 'Reading an inline_xyz2 block  '
+  !       ia = 1
     
-        do while(fdf_bline(bfdf, pline))
+  !       do while(fdf_bline(bfdf, pline))
     
-          if (pline%ntokens == 1) then      
-            number_of_atoms = fdf_bintegers(pline, 1)
-            write(*,*) "Number of atoms", number_of_atoms
-          endif
-          na = number_of_atoms
+  !         if (pline%ntokens == 1) then      
+  !           number_of_atoms = fdf_bintegers(pline, 1)
+  !           write(*,*) "Number of atoms", number_of_atoms
+  !         endif
+  !         na = number_of_atoms
         
-          if (pline%ntokens == 4) then
-            symbol(ia) = fdf_bnames(pline, 1)
-            do i= 1, 3
-              xa(i,ia) = fdf_bvalues(pline, i)
-            enddo
-            ia = ia + 1
-          endif
-        enddo
+  !         if (pline%ntokens == 4) then
+  !           symbol(ia) = fdf_bnames(pline, 1)
+  !           do i= 1, 3
+  !             xa(i,ia) = fdf_bvalues(pline, i)
+  !           enddo
+  !           ia = ia + 1
+  !         endif
+  !       enddo
     
-        write(6,*) 'Inline XYZ2 Coordinates block:'
-        do ia= 1, na
-          write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
-        enddo
-      endif
+  !       write(6,*) 'Inline XYZ2 Coordinates block:'
+  !       do ia= 1, na
+  !         write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
+  !       enddo
+  !     endif
     
-      write(6,'(A)')  
+  !     write(6,'(A)')  
 
-      write(6,*) '------------------------------------------------------'
+  !     write(6,*) '------------------------------------------------------'
     
         
-      if (fdf_block('molecule2', bfdf)) then
-        !   External file reading
-            write(6,*) 'beginning of external file coordinates block  '
-            ia = 1
-    !        write(*,*) "linecount", fdf_block_linecount("molecule")
+    !   if (fdf_block('molecule2', bfdf)) then
+    !     !   External file reading
+    !         write(6,*) 'beginning of external file coordinates block  '
+    !         ia = 1
+    ! !        write(*,*) "linecount", fdf_block_linecount("molecule")
         
-            do while((fdf_bline(bfdf, pline)))
+    !         do while((fdf_bline(bfdf, pline)))
     
-              if (pline%ntokens == 1) then      
-                number_of_atoms = fdf_bintegers(pline, 1)
-                write(*,*) "number of atoms", number_of_atoms
-              endif
-              na = number_of_atoms
+    !           if (pline%ntokens == 1) then      
+    !             number_of_atoms = fdf_bintegers(pline, 1)
+    !             write(*,*) "number of atoms", number_of_atoms
+    !           endif
+    !           na = number_of_atoms
             
-              if (pline%ntokens == 4) then
-                symbol(ia) = fdf_bnames(pline, 1)
-                do i= 1, 3
-                  xa(i,ia) = fdf_bvalues(pline, i)
-                enddo
-                ia = ia + 1
-              endif
-            enddo
-        endif
-      write(6,*) 'Coordinates from Molecule2 block: External file'
-      do ia= 1, na
-        write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
-      enddo
+    !           if (pline%ntokens == 4) then
+    !             symbol(ia) = fdf_bnames(pline, 1)
+    !             do i= 1, 3
+    !               xa(i,ia) = fdf_bvalues(pline, i)
+    !             enddo
+    !             ia = ia + 1
+    !           endif
+    !         enddo
+    !     endif
+    !   write(6,*) 'Coordinates from Molecule2 block: External file'
+    !   do ia= 1, na
+    !     write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
+    !   enddo
       
      
     
-      write(6,'(A)')  
+    !   write(6,'(A)')  
     
-      write(6,*) '------------------------------------------------------'
+    !   write(6,*) '------------------------------------------------------'
     
     
 
@@ -341,41 +359,41 @@ PROGRAM iochamp
 
 
 
-  if ( fdf_block('ListBlock',bfdf) ) then
-     i = 0
-     do while ( fdf_bline(bfdf,pline) )
-        i = i + 1
-        na = fdf_bnlists(pline)
-        write(*,'(2(a,i0),a)') 'Listblock line: ',i,' has ',na,' lists'
-        do ia = 1 , na
-           j = -1
+  ! if ( fdf_block('ListBlock',bfdf) ) then
+  !    i = 0
+  !    do while ( fdf_bline(bfdf,pline) )
+  !       i = i + 1
+  !       na = fdf_bnlists(pline)
+  !       write(*,'(2(a,i0),a)') 'Listblock line: ',i,' has ',na,' lists'
+  !       do ia = 1 , na
+  !          j = -1
 
-           call fdf_bilists(pline,ia,j,isa)
-           write(*,'(tr5,2(a,i0),a)') 'list ',ia,' has ',j,' entries' 
-           call fdf_bilists(pline,ia,j,isa)
-           write(*,'(tr5,a,1000(tr1,i0))') 'list: ',isa(1:j)
+  !          call fdf_bilists(pline,ia,j,isa)
+  !          write(*,'(tr5,2(a,i0),a)') 'list ',ia,' has ',j,' entries' 
+  !          call fdf_bilists(pline,ia,j,isa)
+  !          write(*,'(tr5,a,1000(tr1,i0))') 'list: ',isa(1:j)
 
-        end do
-     end do
-  end if
+  !       end do
+  !    end do
+  ! end if
 
 
-  if ( fdf_islreal('list_floats') .and. fdf_islist('list_floats') &
-      .and. (.not. fdf_islinteger('list_floats')) ) then
-    na = -1
-    call fdf_list('list_floats',na,listr)
-    write(*,'(tr1,a,i0,a)') 'list_floats has ',na,' entries'
-    if ( na < 2 ) stop 1
-    call fdf_list('list_floats',na,listr)
-    write(*,'(tr5,a,1000(tr1,f12.8))') 'list_floats: ',listr(1:na)
-  else
-    write(*,*)'list_floats was not recognized'
-    stop 1
-  end if
+  ! if ( fdf_islreal('list_floats') .and. fdf_islist('list_floats') &
+  !     .and. (.not. fdf_islinteger('list_floats')) ) then
+  !   na = -1
+  !   call fdf_list('list_floats',na,listr)
+  !   write(*,'(tr1,a,i0,a)') 'list_floats has ',na,' entries'
+  !   if ( na < 2 ) stop 1
+  !   call fdf_list('list_floats',na,listr)
+  !   write(*,'(tr5,a,1000(tr1,f12.8))') 'list_floats: ',listr(1:na)
+  ! else
+  !   write(*,*)'list_floats was not recognized'
+  !   stop 1
+  ! end if
 
-  write(6,'(A)')  
+  ! write(6,'(A)')  
     
-  write(6,*) '------------------------------------------------------'
+  ! write(6,*) '------------------------------------------------------'
 
   write(6,'(A)')  " Determinants Block"
 
@@ -384,7 +402,7 @@ PROGRAM iochamp
 
   if (fdf_block('determinants', bfdf)) then
     !   External file reading
-        write(6,*) 'beginning of external file determinant block  '
+        write(6,*) 'Beginning of external file determinant block  '
         ia = 1
 
 !        call io_status()
@@ -436,13 +454,6 @@ PROGRAM iochamp
 !          endif
 !        enddo
   endif
-
-  ! write(6,*) 'Coordinates from Molecule block: External file'
-  ! do ia= 1, na
-  !   write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
-  ! enddo
-  
- 
 
   write(6,'(A)')  
 
