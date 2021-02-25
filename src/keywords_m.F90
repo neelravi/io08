@@ -27,7 +27,16 @@ MODULE keywords
 
     implicit none
 
-    public  ::  title 
+    public  ::  title
+    public  ::  path_pool
+    public  ::  file_input, file_output
+    public  ::  file_basis 
+    public  ::  file_pseudo
+    public  ::  file_orbitals
+    public  ::  file_determinants
+    public  ::  file_jastrow
+    public  ::  file_jastrow_deriv
+
     public  ::  irn,        rand_seed 
     public  ::  ijas,       form_jastrow                            ! form of Jastrow. (between 1 and 6, mostly we use 4)
     public  ::  isc,        form_jastrow_scaling                    !  isc      form of scaling function for ri,rj,rij in Jastrow (between 1 and 7, mostly use 2,4,6,7)
@@ -120,7 +129,15 @@ MODULE keywords
 
 !  declarations
 
-    character(len=132)              ::  title 
+    character(len=132)              ::  title
+    character(len=132)              ::  path_pool 
+    character(len=132)              ::  file_input, file_output
+    character(len=132)              ::  file_basis 
+    character(len=132)              ::  file_pseudo
+    character(len=132)              ::  file_orbitals
+    character(len=132)              ::  file_determinants
+    character(len=132)              ::  file_jastrow
+    character(len=132)              ::  file_jastrow_deriv
 
     integer, target                 ::  irn
     integer, pointer                ::  rand_seed => irn

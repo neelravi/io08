@@ -6,12 +6,17 @@ PROGRAM iochamp
   USE prec
   USE parse
   use io_fdf
+
+! Note the following two modules are being used to store and process the parsed data  
+  use keywords
+  use periodic_table
+!  
   implicit none
 !--------------------------------------------------------------- Local Variables
   integer, parameter         :: maxa = 100
   logical                    :: doit, debug, check, val, logic(10)
   logical                    :: beginning, ending
-  character(len=72)          :: fname, axis, status, filename, title, fmt
+  character(len=72)          :: fname, axis, status, filename, fmt
   character(len=72)          :: molecule_name, key, comment
   character(2)               :: symbol(maxa)
   character(len=20)          :: chunks(10), subblock(10)
@@ -33,7 +38,7 @@ PROGRAM iochamp
   character(len=20)          :: int_format = '(A, T20, I8)'
 
 ! for determinants sections
-  integer                    :: nelectrons, nalpha, nbeta, ndeterminants, nexcitation, iostat
+  integer                    :: nelectrons, nexcitation, iostat
   integer, allocatable       :: det_alpha(:), det_beta(:)
   real(selected_real_kind(6,15)), allocatable :: det_coeff(:)
   character(len=20)          :: temp1, temp2, temp3, temp4, temp5
@@ -42,12 +47,34 @@ PROGRAM iochamp
 ! Initialize
   call fdf_init('test-champ.inp', 'test-champ.out')
 
-! Handle/Use fdf structure
-  if (fdf_defined('new-style')) write(6,*) 'New-style stuff'
-
 ! strings/characters
-  fname = fdf_string('title', 'Default title')
-  write(6,'(A)') 'title of the calculation :: ', fname
+  title = fdf_string('title', 'Default title')
+  write(6,'(A)') 'Title of the calculation :: ', title
+
+  path_pool = fdf_string('pool', './')
+  write(6,'(A)') 'pool directory location :: ', path_pool
+
+  file_pseudo = fdf_string('pseudopot', '')
+  write(6,'(A)') 'filename pseuodpotential :: ', file_pseudo
+
+  file_basis = fdf_string('basis', '')
+  write(6,'(A)') 'filename basis :: ', file_basis
+
+  file_determinants = fdf_string('determinants', '')
+  write(6,'(A)') 'filename determinants :: ', file_determinants
+
+  file_orbitals = fdf_string('orbitals', '')
+  write(6,'(A)') 'filename orbitals :: ', file_orbitals
+
+  file_jastrow = fdf_string('jastrow', '')
+  write(6,'(A)') 'filename jastrow :: ', file_jastrow
+
+  file_jastrow_deriv = fdf_string('jastrow_deriv', '')
+  write(6,'(A)') 'filename jastrow derivatives :: ', file_jastrow_deriv
+
+
+
+
 
 !Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
   nextorb = fdf_integer('nextorb', 0)
@@ -111,13 +138,13 @@ PROGRAM iochamp
   doit = fdf_boolean("optimize_wavefunction", .True.)
   write(6,*) ' optimize_wavefunction = ', doit
 
-  doit = fdf_boolean('optimize_ci', .True.)
+  doit = fdf_get('optimize_ci', .True.)
   write(6,*) ' optimize_ci = ', doit
 
-  doit = fdf_boolean('optimize_jastrow', .True.)
+  doit = fdf_get('optimize_jastrow', .True.)
   write(6,*) ' optimize_jastrow = ', doit
 
-  doit = fdf_boolean('optimize_orbitals', .True.)
+  doit = fdf_get('optimize_orbitals', .True.)
   write(6,*) ' optimize_orbitals = ', doit
 
 

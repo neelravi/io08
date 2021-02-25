@@ -1,5 +1,12 @@
 title "A Sample QMC input file parsed by libfdf interfaced to CHAMP"
 
+pool          ./pool
+pseudopot     BFD
+basis         BFD-T-normf0
+
+# %include global.fdf
+
+
 sr_tau 		  1.023
 sr_eps 		  0.001
 sr_adiag 	  0.05
@@ -9,8 +16,8 @@ a = 20
 b = 30
 
 
-optimize_wavefunction 		no		
-optimize_ci 		 		      no
+optimize_wavefunction 		1		
+optimize_ci 		 		      0
 optimize_jastrow		 	    yes
 optimize_orbitals			    false
 
