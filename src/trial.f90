@@ -9,7 +9,7 @@ program trial_reading
 
         type(atom_t) :: atom1
 
-        atom1 = element("Hydrogen")
+        atom1 = element("sulfur")
 
         print*, "atom info name ", atom1%name
         print*, "atom info symbol ", atom1%symbol

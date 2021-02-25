@@ -23,6 +23,7 @@ MODULE keywords
 
 
     use iso_fortran_env
+    use periodic_table, only: atom_t, element    
 
     implicit none
 
