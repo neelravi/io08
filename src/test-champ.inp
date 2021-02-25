@@ -4,7 +4,7 @@ pool          ./pool
 pseudopot     BFD
 basis         BFD-T-normf0
 
-# %include global.fdf
+%include global.fdf
 
 %block molecule     < caffeine.xyz
 %block determinants < sample.det

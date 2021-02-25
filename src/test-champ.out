@@ -22,7 +22,7 @@ energy_tol         0.1000000000E-04
 opt_method     sr_n                                                                            
 multiple_adiag              F
 Debug              T     # default value
-ianalyt_lap         1     # default value
+ianalyt_lap              1
 nspin1         1     # default value
 nspin2         1     # default value
 ifock         1     # default value

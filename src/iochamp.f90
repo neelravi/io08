@@ -200,23 +200,24 @@ PROGRAM iochamp
         do while((fdf_bline(bfdf, pline)))
 
           if (pline%ntokens == 1) then      
-            number_of_atoms = fdf_bintegers(pline, 1)
-            write(*,*) "number of atoms", number_of_atoms
+            natoms = fdf_bintegers(pline, 1)
+            write(*,*) "Number of atoms = ", natoms
           endif
-          na = number_of_atoms
+
+          if (.not. allocated(cent)) allocate(cent(3,natoms))
         
           if (pline%ntokens == 4) then
             symbol(ia) = fdf_bnames(pline, 1)
             do i= 1, 3
-              xa(i,ia) = fdf_bvalues(pline, i)
+              cent(i,ia) = fdf_bvalues(pline, i)
             enddo
             ia = ia + 1
           endif
         enddo
     endif
   write(6,*) 'Coordinates from Molecule block: External file'
-  do ia= 1, na
-    write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
+  do ia= 1, natoms
+    write(6,'(A4,3F10.6)') symbol(ia), (cent(i,ia),i=1,3)
   enddo
   
  
