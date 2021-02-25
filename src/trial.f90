@@ -7,6 +7,10 @@ program trial_reading
     character(40)   :: temp1, temp2, temp3, fmt
     real(selected_real_kind(6,15)), allocatable :: det_coeff(:)
 
+    integer, target                  ::  irn
+    integer, pointer                 ::  rand_seed => irn
+
+
         type(atom_t) :: atom1
 
         atom1 = element("sulfur")
@@ -17,6 +21,11 @@ program trial_reading
         print*, "atom info charge ", atom1%znuclear                        
 
         print*, atom1
+
+        irn = 132432
+        print *, "irn ", irn
+        print *, "rand_seed ", rand_seed
+
 
         open (unit=11,file='TZ_1M_500.det', iostat=iostat, action='read' )
         read(11,*) temp1, temp2, nelectrons, temp3, nalpha

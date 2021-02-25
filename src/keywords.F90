@@ -78,11 +78,11 @@ MODULE keywords
     public  ::  ncent,      natoms, ncenters, ncentres              ! number of atoms/centers
     public  ::  iwctype                                             ! specify atom-type for each atom
     public  ::  znuc,       znuclear, atomic_number                 ! nuclear charge
-    public  ::  cent,       atom_coords                             ! atom positions
+    public  ::  cent        !atom_coords                             ! atom positions
     public  ::  ndet,       ndeterminants                           ! number of determinants in wavefunction
     public  ::  nbasis                                              ! number of basis functions
     public  ::  norb,       norbitals                               ! number of orbitals
-    public  ::  cdet,       det_coeffs                              ! coefficients of determinants
+    public  ::  cdet        !det_coeffs                              ! coefficients of determinants
     public  ::  iworbd                                              ! which orbitals enter in which determinants
     public  ::  ianalyt_lap, analytic_laplacian                     ! analytic laplacian or not
 
@@ -104,7 +104,7 @@ MODULE keywords
     public  ::  scalek,     scaling_jastrow                         ! scale factor for Jastrow
     public  ::  a1,a2                                               ! Jastrow parameters for Jastrow2
     public  ::  a,b,c                                               ! Jastrow parameters for Jastrow3
-    public  ::  a4,b,c                                              ! Jastrow parameters for Jastrow4,5,6
+    public  ::  a4                                                  ! Jastrow parameters for Jastrow4,5,6
     public  ::  cutjas,     cutoff_jastrow                          ! cutoff for Jastrow4,5,6 if cutjas=6,7
     public  ::  itau_eff,   itau_effective
 
@@ -112,81 +112,161 @@ MODULE keywords
 !    rlobx(y) Lobachevsky parameters for Fock expansion
 !    ipq,iacc_rej,icross,icuspg,idiv_v
 
-!    private variables
+    private :: sp, dp
 
-    private ::
-
-    interface fdf_bnames
-        module procedure names
-    end interface
-
-!   derived data types
-
-    type, public :: atom_t
-        character(len=:)        :: name
-        character(len=:)        :: symbol        
-        integer(int32)          :: znuclear
-        real(real64)            :: atomic_mass
-    end type atom_t
+    integer, parameter :: sp = kind(1.0)
+    integer, parameter :: dp = kind(1.0d0)    
 
 
 !  declarations
 
-    public  ::  title 
-    public  ::  irn,        rand_seed 
-    public  ::  ijas,       form_jastrow        
-    public  ::  isc,        form_jastrow_scaling
-    public  ::  iperiodic,  periodic
-    public  ::  ibasis,     form_basis
-    public  ::  hb,         hbar
-    public  ::  etrial,     energy_trial
-    public  ::  eunit,      energy_unit
-    public  ::  nstep,      nsteps
-    public  ::  nblk,       nblocks                       
-    public  ::  nblkeq,     nequil_blocks    
-    public  ::  nconf,      nconfigs         
-    public  ::  nconf_new,  nconfigs_new     
-    public  ::  idump,      unit_restart_dump
-    public  ::  irstar,     restart          
-    public  ::  isite,      generate_config       
-    public  ::  ipr,        print_level           
-    public  ::  imetro,     form_metropolis       
-    public  ::  delta,      step_size             
-    public  ::  deltar,     step_size_radial      
-    public  ::  deltat,     step_size_angular     
-    public  ::  fbias,      force_bias            
-    public  ::  idmc,       form_dmc              
-    public  ::  nfprod                            
-    public  ::  tau                               
-    public  ::  nloc,       pseudo_format         
-    public  ::  nquad,      nquadrature           
-    public  ::  nelec                                               
-    public  ::  nup,        nalpha                                  
-    public  ::  ndown,      nbeta                                   
-    public  ::  nctype,     ntypes_atom                             
-    public  ::  ncent,      natoms, ncenters, ncentres              
-    public  ::  iwctype                                             
-    public  ::  znuc,       znuclear, atomic_number                 
-    public  ::  cent,       atom_coords                             
-    public  ::  ndet,       ndeterminants                           
-    public  ::  nbasis                                              
-    public  ::  norb,       norbitals                               
-    public  ::  cdet,       det_coeffs                              
-    public  ::  iworbd                                              
-    public  ::  ianalyt_lap, analytic_laplacian                     
-    public  ::  nspin2                                              
-    public  ::  nord,       order_poly                              
-    public  ::  norda,      order_poly_en                           
-    public  ::  nordb,      order_poly_ee                           
-    public  ::  nordc,      order_poly_een                          
-    public  ::  cjas1                                               
-    public  ::  cjas2                                               
-    public  ::  scalek,     scaling_jastrow                         
-    public  ::  a1,a2                                               
-    public  ::  a,b,c                                               
-    public  ::  a4,b,c                                              
-    public  ::  cutjas,     cutoff_jastrow                          
-    public  ::  itau_eff,   itau_effective    
+    character(len=132)              ::  title 
+
+    integer, target                 ::  irn
+    integer, pointer                ::  rand_seed => irn
+
+    integer, target                 ::  ijas
+    integer, pointer                ::  form_jastrow => ijas
+
+    integer, target                 ::  isc
+    integer, pointer                ::  form_jastrow_scaling => isc
+
+    integer, target                 ::  iperiodic
+    integer, pointer                ::  periodic => iperiodic
+
+    integer, target                 ::  ibasis
+    integer, pointer                ::  form_basis => ibasis
+
+    real(dp), target                ::  hb
+    real(dp), pointer               ::  hbar => hb
+ 
+    real(dp), target                ::  etrial
+    real(dp), pointer               ::  energy_trial => etrial
+
+    integer, target                 ::  eunit
+    integer, pointer                ::  energy_unit => eunit
+
+    integer, target                 ::  nstep
+    integer, pointer                ::  nsteps => nstep
+
+    integer, target                 ::  nblk
+    integer, pointer                ::  nblocks => nblk
+
+    integer, target                 ::  nblkeq
+    integer, pointer                ::  nequil_blocks => nblkeq
+
+    integer, target                 ::  nconf
+    integer, pointer                ::  nconfigs => nconf
+
+    integer, target                 ::  nconf_new
+    integer, pointer                ::  nconfigs_new => nconf_new
+
+    integer, target                 ::  idump
+    integer, pointer                ::  unit_restart_dump => idump
+
+    integer, target                 ::  irstar
+    integer, pointer                ::  restart => irstar
+
+    integer, target                 ::  isite
+    integer, pointer                ::  generate_config => isite
+
+    integer, target                 ::  ipr
+    integer, pointer                ::  print_level => ipr
+
+    integer, target                 ::  imetro
+    integer, pointer                ::  form_metropolis => imetro
+
+    integer, target                 ::  delta
+    integer, pointer                ::  step_size => delta
+
+    integer, target                 ::  deltar
+    integer, pointer                ::  step_size_radial => deltar
+
+    integer, target                 ::  deltat
+    integer, pointer                ::  step_size_angular => deltat
+
+    integer, target                 ::  fbias
+    integer, pointer                ::  force_bias => fbias
+
+    integer, target                 ::  idmc
+    integer, pointer                ::  form_dmc => idmc
+
+    integer                         ::  nfprod                            
+    real(sp)                        ::  tau                               
+
+    integer, target                 ::  nloc
+    integer, pointer                ::  pseudo_format => nloc
+
+    integer, target                 ::  nquad
+    integer, pointer                ::  nquadrature => nquad
+
+    integer                         ::  nelec                                               
+
+    integer, target                 ::  nup
+    integer, pointer                ::  nalpha => nup                                 
+
+    integer, target                 ::  ndown
+    integer, pointer                ::  nbeta  => ndown
+
+    integer, target                 ::  nctype
+    integer, pointer                ::  ntypes_atom => nctype
+
+    integer, target                 ::  ncent
+    integer, pointer                ::  natoms => ncent, ncenters  => ncent, ncentres => ncent
+
+    integer                         ::  iwctype                                             
+
+    integer, target                 ::  znuc
+    integer, pointer                ::  znuclear => znuc, atomic_number => znuc
+
+    real(dp), allocatable           ::  cent(:,:)
+!    real(dp), pointer               ::  atom_coords => cent  !! this might have issues in performance
+
+    integer, target                 ::  ndet
+    integer, pointer                ::  ndeterminants => ndet
+
+    integer                         ::  nbasis                                              
+
+    integer, target                 ::  norb
+    integer, pointer                ::  norbitals => norb
+
+    real(dp), allocatable           ::  cdet(:)
+!    integer, pointer                ::  det_coeffs => cdet   ! issues in performance
+
+    integer                         ::  iworbd                                              
+
+    integer, target                 ::  ianalyt_lap
+    integer, pointer                ::  analytic_laplacian => ianalyt_lap
+
+    integer                         ::  nspin2                                              
+
+    integer, target                 ::  nord
+    integer, pointer                ::  order_poly => nord
+
+    integer, target                 ::  norda
+    integer, pointer                ::  order_poly_en => norda
+
+    integer, target                 ::  nordb
+    integer, pointer                ::  order_poly_ee => nordb
+
+    integer, target                 ::  nordc
+    integer, pointer                ::  order_poly_een => nordc
+
+    integer, target                 ::  scalek
+    integer, pointer                ::  scaling_jastrow => scalek
+
+    integer                         ::  cjas1                                               
+    integer                         ::  cjas2                                               
+
+    real(dp)                        ::  a1,a2                                               
+    real(dp)                        ::  a,b,c                                               
+    real(dp)                        ::  a4
 
 
-   contains
+    real(dp), target                ::  cutjas
+    real(dp), pointer               ::  cutoff_jastrow => cutjas
+
+    real(dp), target                ::  itau_eff
+    real(dp), pointer               ::  itau_effective => itau_eff
+
+end module
