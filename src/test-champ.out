@@ -1,11 +1,11 @@
 title     A Sample QMC input file parsed by libfdf interfaced to CHAMP                    
 pool     ./pool                                                                          
-pseudopot     BFD                                                                             
-basis     BFD-T-normf0                                                                    
-determinants          # default value
-orbitals          # default value
-jastrow          # default value
-jastrow_deriv          # default value
+pseudopot     default.psp     # default value
+basis     default.bas     # default value
+determinants     TZ_1M_500.det                                                                   
+orbitals     default.orb     # default value
+jastrow     default.jas     # default value
+jastrow_deriv     default.jasder     # default value
 optimize_wavefunction              T
 optimize_ci              F
 optimize_jastrow              T

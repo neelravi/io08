@@ -50,25 +50,27 @@ PROGRAM iochamp
   title = fdf_string('title', 'Default title')
   write(6,'(A)') 'Title of the calculation :: ', title
 
+  ! Get the directory where the pooled data is kept
   path_pool = fdf_string('pool', './')
   write(6,'(A)') 'pool directory location :: ', path_pool
 
-  file_pseudo = fdf_string('pseudopot', '')
+  ! Get all the filenames from which the data is to be read
+  file_pseudo = fdf_load_filename('pseudopot', 'default.psp')
   write(6,'(A)') 'filename pseuodpotential :: ', file_pseudo
 
-  file_basis = fdf_string('basis', '')
+  file_basis = fdf_load_filename('basis', 'default.bas')
   write(6,'(A)') 'filename basis :: ', file_basis
 
-  file_determinants = fdf_string('determinants', '')
+  file_determinants = fdf_load_filename('determinants', 'default.det')
   write(6,'(A)') 'filename determinants :: ', file_determinants
 
-  file_orbitals = fdf_string('orbitals', '')
+  file_orbitals = fdf_load_filename('orbitals', 'default.orb')
   write(6,'(A)') 'filename orbitals :: ', file_orbitals
 
-  file_jastrow = fdf_string('jastrow', '')
+  file_jastrow = fdf_load_filename('jastrow', 'default.jas')
   write(6,'(A)') 'filename jastrow :: ', file_jastrow
 
-  file_jastrow_deriv = fdf_string('jastrow_deriv', '')
+  file_jastrow_deriv = fdf_load_filename('jastrow_deriv', 'default.jasder')
   write(6,'(A)') 'filename jastrow derivatives :: ', file_jastrow_deriv
 
 
@@ -408,7 +410,7 @@ PROGRAM iochamp
 
 !        call io_status()
 !        call fdf_printfdf()
-        print*, "printing label ", bfdf%label
+        print*, "printing label ", bfdf%label , trim(bfdf%mark%pline%line)
 
 
         print*, "pline obtained",  (fdf_bline(bfdf, pline))

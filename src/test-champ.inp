@@ -9,6 +9,10 @@ basis         BFD-T-normf0
 %block molecule     < caffeine.xyz
 %block determinants < sample.det
 
+
+load determinants TZ_1M_500.det
+
+
 optimize_wavefunction 		1		      
 optimize_ci             = false
 optimize_jastrow		 	    yes       
