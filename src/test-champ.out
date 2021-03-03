@@ -31,6 +31,7 @@ tau         0.3999999911E-01
 etrial         -408.1744362             eV
 # above item originally: etrial         -15.00000000     Ha        
 %block molecule
+%block molecule
  24
  molecule 1,3,7-Trimethylpurine-2,6-dione
    N      1.5808      0.7027     -0.2279

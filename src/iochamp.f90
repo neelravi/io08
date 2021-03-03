@@ -194,6 +194,39 @@ PROGRAM iochamp
 
   write(6,*) '------------------------------------------------------'
   
+  
+  
+
+  if (.not. fdf_block('molecule', bfdf)) then
+      !   External file reading
+          write(6,*) 'Reading coordinates of the moleculle from an external file'
+          ia = 1
+
+          open (unit=12,file=file_molecule, iostat=iostat, action='read' )
+          if (iostat .ne. 0) error stop "Problem in operning the molecule file"
+          read(12,*) natoms
+          print*, "natoms ", natoms
+          if (.not. allocated(cent)) allocate(cent(3,natoms))
+          
+          read(12,'(A)')  key
+          print*, "Comment :: ", trim(key)
+          do i = 1, natoms
+            read(12,*) symbol(i), cent(1,i), cent(2,i), cent(3,i)
+          enddo
+          close(12)
+  endif
+
+    write(6,*) 'Coordinates from Molecule load construct: '
+    do ia= 1, natoms
+      write(6,'(A4,3F10.6)') symbol(ia), (cent(i,ia),i=1,3)
+    enddo
+    
+   
+  
+    write(6,'(A)')  
+  
+    write(6,*) '------------------------------------------------------'
+
 
 
 
@@ -447,7 +480,7 @@ PROGRAM iochamp
         read(11,*) temp1
         if (temp1 == "end" ) write(*,*) "Determinant File read successfully "
 
-        
+
 
         close(11)
 

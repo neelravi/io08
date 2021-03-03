@@ -1,38 +1,40 @@
 title "A Sample QMC input file parsed by libfdf interfaced to CHAMP"
 
-pool          ./pool
-pseudopot     BFD
-basis         BFD-T-normf0
+pool            ./pool
+pseudopot       BFD
+basis           BFD-T-normf0
 
-%include global.fdf
+%include        global.inp
 
-%block molecule     < caffeine.xyz
+%block molecule < caffeine.xyz
 
 load molecule       caffeine.xyz
 load basis          BFD-T-normf0.bas
-load determinants   "TZ_1M_500.det"
+load determinants   TZ_1M_500.det
+
+%module optimization
+    optimize_wavefunction 	1		      
+    optimize_ci             false
+    optimize_jastrow		yes       
+    optimize_orbitals	    true
 
 
-optimize_wavefunction 		1		      
-optimize_ci             = false
-optimize_jastrow		 	    yes       
-optimize_orbitals	        true
+    sr_tau 		    0.025
+    sr_eps 		    0.001
+    sr_adiag 	    0.01
+    energy_tol 	    1.0E-5
 
 
-sr_tau 		  0.025
-sr_eps 		  0.001
-sr_adiag 	  0.01
-energy_tol 	1.0E-5
+    ncore       0     no_active   0
+    nextorb   	280 ; nblk_max 	  200
+    nopt_iter   2
+
+    opt_method      sr_n 
+    multiple_adiag  no
+%end module
 
 
-ncore       0     no_active   0
-nextorb   	280 ; nblk_max 	  200
-nopt_iter   2
-
-opt_method      sr_n 
-multiple_adiag  no
-
-
-tau  = 0.04
-etrial = -15 Ha
-
+%module DMC
+    tau  = 0.04
+    etrial = -15 Ha
+%end module
