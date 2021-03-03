@@ -35,6 +35,7 @@ PROGRAM iochamp
   real(dp)                   :: float_value
   character(len=20)          :: real_format = '(A, T20, F14.8)'
   character(len=20)          :: int_format = '(A, T20, I8)'
+  character(len=80)          :: string_format = '(A, T40, A)'  
 
 ! for determinants sections
   integer                    :: nelectrons, nexcitation, iostat
@@ -52,26 +53,29 @@ PROGRAM iochamp
 
   ! Get the directory where the pooled data is kept
   path_pool = fdf_string('pool', './')
-  write(6,'(A)') 'pool directory location :: ', path_pool
+  write(6,fmt=string_format) 'pool directory location :: ', path_pool
 
   ! Get all the filenames from which the data is to be read
+  file_molecule = fdf_load_filename('molecule', 'default.xyz')
+  write(6,fmt=string_format) 'filename molecule :: ', trim(file_molecule)
+
   file_pseudo = fdf_load_filename('pseudopot', 'default.psp')
-  write(6,'(A)') 'filename pseuodpotential :: ', file_pseudo
+  write(6,fmt=string_format) 'filename pseuodpotential :: ', trim(file_pseudo)
 
   file_basis = fdf_load_filename('basis', 'default.bas')
-  write(6,'(A)') 'filename basis :: ', file_basis
+  write(6,fmt=string_format) 'filename basis :: ', trim(file_basis)
 
   file_determinants = fdf_load_filename('determinants', 'default.det')
-  write(6,'(A)') 'filename determinants :: ', file_determinants
+  write(6,fmt=string_format) 'filename determinants :: ', trim(file_determinants)
 
   file_orbitals = fdf_load_filename('orbitals', 'default.orb')
-  write(6,'(A)') 'filename orbitals :: ', file_orbitals
+  write(6,fmt=string_format) 'filename orbitals :: ', trim(file_orbitals)
 
   file_jastrow = fdf_load_filename('jastrow', 'default.jas')
-  write(6,'(A)') 'filename jastrow :: ', file_jastrow
+  write(6,fmt=string_format) 'filename jastrow :: ',trim(file_jastrow)
 
   file_jastrow_deriv = fdf_load_filename('jastrow_deriv', 'default.jasder')
-  write(6,'(A)') 'filename jastrow derivatives :: ', file_jastrow_deriv
+  write(6,fmt=string_format) 'filename jastrow derivatives :: ', trim(file_jastrow_deriv)
 
 
 ! &optwf ioptwf 1 ioptci 1 ioptjas 1 ioptorb 1
@@ -403,59 +407,50 @@ PROGRAM iochamp
   write(6,*) '------------------------------------------------------'
 
 
-  if (fdf_block('determinants', bfdf)) then
+  if (.not. fdf_block('determinants', bfdf)) then
     !   External file reading
-        write(6,*) 'Beginning of external file determinant block  '
+        write(6,*) 'Reading the determinants block from an external file '
         ia = 1
-
 !        call io_status()
-!        call fdf_printfdf()
-        print*, "printing label ", bfdf%label , trim(bfdf%mark%pline%line)
+        ! print*, "printing label ", bfdf%label , trim(bfdf%mark%pline%line)
 
+        ! print*, "pline obtained",  (fdf_bline(bfdf, pline))
 
-        print*, "pline obtained",  (fdf_bline(bfdf, pline))
-
-        open (unit=11,file='TZ_1M_500.det', iostat=iostat, action='read' )
+        open (unit=11,file=file_determinants, iostat=iostat, action='read' )
         read(11,*) temp1, temp2, nelectrons, temp3, nalpha
-        write(*,'(a,1x,i3,1x,i3)') "write after read1", nelectrons, nalpha        
-        read(11,*)  temp1, ndeterminants, nexcitation   
-        allocate(det_coeff(ndeterminants))             
-        write(*,'(a,1x,i3, 1x, i3)') "write after read2", ndeterminants, nexcitation
+
+        read(11,*)  temp1, ndeterminants, nexcitation
+        if (.not. allocated(det_coeff)) allocate(det_coeff(ndeterminants))           
+
         read(11,*) (det_coeff(i), i=1,ndeterminants)
         write(fmt,*)  '(', ndeterminants, '(f11.8,1x))'
         write(*,fmt) (det_coeff(i), i=1,ndeterminants)
-!        write(*,'(<ndeterminants>(f11.8, 1x))') (det_coeff(i), i=1,ndeterminants)    ! for Intel Fortran        
-        close(11)
+!        write(*,'(<ndeterminants>(f11.8, 1x))') (det_coeff(i), i=1,ndeterminants)    ! for Intel Fortran  
+
+        nbeta       = nelectrons - nalpha        
+!       allocate the orbital mapping array        
+        if (.not. allocated(iworbd)) allocate(iworbd(nelectrons, ndeterminants))
+        
+        write(*,*) "total number of       electrons ", nelectrons
+        write(*,*) "      number of alpha electrons ", nalpha        
+        write(*,*) "      number of beta  electrons ", nbeta
+
+        do i = 1, ndeterminants
+          read(11,*) (iworbd(j,i), j=1,nelectrons)
+        enddo
+
+        write(fmt,*)  '(i4,1x)'        
+        do i = 1, ndeterminants
+          write(*,'(<nelectrons>(i4, 1x))') (iworbd(j,i), j=1,nelectrons)
+        enddo
+     
+        read(11,*) temp1
+        if (temp1 == "end" ) write(*,*) "Determinant File read successfully "
 
         
-          if(fdf_bsearch(pline, "&electrons")) then
-            nelectrons  =  integers(pline, 1)
-            nalpha      =  integers(pline, 2)
-            nbeta       = nelectrons - nalpha
 
-            write(*,*) "total number of       electrons ", nelectrons
-            write(*,*) "      number of alpha electrons ", nalpha        
-            write(*,*) "      number of beta  electrons ", nalpha
-            if (.not. allocated(det_alpha)) allocate(det_alpha(nalpha))
-            if (.not. allocated(det_beta)) allocate(det_beta(nbeta))
-          endif
+        close(11)
 
-          if(fdf_bsearch(pline, "determinants")) then
-            ndeterminants   =  fdf_bintegers(pline, 1)          
-            nexcitation     =  fdf_bintegers(pline, 2)
-            write(*,*) "total number of determinants ", ndeterminants
-            write(*,*) "      number of excitations  ", nexcitation 
-            if (.not. allocated(det_coeff)) allocate(det_coeff(ndeterminants)) 
-          endif
-
-
-          na = nintegers(pline)
-          write(*,'(2(a,i0),a)') 'number of integers: ', na, ' integers'
-          write(*,'(tr5,a,<nalpha>(tr1,i0))') 'list: ', det_alpha(1:nalpha)
-
-
-!          endif
-!        enddo
   endif
 
   write(6,'(A)')  

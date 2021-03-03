@@ -86,6 +86,7 @@ MODULE keywords
     public  ::  nctype,     ntypes_atom                             ! number of atom/center types 
     public  ::  ncent,      natoms, ncenters, ncentres              ! number of atoms/centers
     public  ::  iwctype                                             ! specify atom-type for each atom
+
     public  ::  znuc,       znuclear, atomic_number                 ! nuclear charge
     public  ::  cent        !atom_coords                             ! atom positions
     public  ::  ndet,       ndeterminants                           ! number of determinants in wavefunction
@@ -152,6 +153,7 @@ MODULE keywords
     character(len=132)              ::  file_input, file_output
     character(len=132)              ::  file_basis 
     character(len=132)              ::  file_pseudo
+    character(len=132)              ::  file_molecule    
     character(len=132)              ::  file_orbitals
     character(len=132)              ::  file_determinants
     character(len=132)              ::  file_jastrow
@@ -250,6 +252,7 @@ MODULE keywords
     integer, pointer                ::  natoms => ncent, ncenters  => ncent, ncentres => ncent
 
     integer                         ::  iwctype                                             
+    integer, allocatable            ::  iworbd(:,:)   ! to store orbital mapping in determinants
 
     integer, target                 ::  znuc
     integer, pointer                ::  znuclear => znuc, atomic_number => znuc
@@ -268,7 +271,6 @@ MODULE keywords
     real(dp), allocatable           ::  cdet(:)
 !    integer, pointer                ::  det_coeffs => cdet   ! issues in performance
 
-    integer                         ::  iworbd                                              
 
     integer, target                 ::  ianalyt_lap
     integer, pointer                ::  analytic_laplacian => ianalyt_lap

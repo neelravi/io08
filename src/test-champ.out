@@ -1,7 +1,8 @@
 title     A Sample QMC input file parsed by libfdf interfaced to CHAMP                    
 pool     ./pool                                                                          
+molecule     caffeine.xyz                                                                    
 pseudopot     default.psp     # default value
-basis     default.bas     # default value
+basis     BFD-T-normf0.bas                                                                
 determinants     TZ_1M_500.det                                                                   
 orbitals     default.orb     # default value
 jastrow     default.jas     # default value
@@ -57,5 +58,3 @@ etrial         -408.1744362             eV
    H      3.2249      1.5791      0.8255
    H      2.6431      2.5130     -0.5793
 %endblock molecule
-%block determinants
- &electrons nelec   22 nup   11

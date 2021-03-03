@@ -7,10 +7,10 @@ basis         BFD-T-normf0
 %include global.fdf
 
 %block molecule     < caffeine.xyz
-%block determinants < sample.det
 
-
-load determinants TZ_1M_500.det
+load molecule       caffeine.xyz
+load basis          BFD-T-normf0.bas
+load determinants   "TZ_1M_500.det"
 
 
 optimize_wavefunction 		1		      
