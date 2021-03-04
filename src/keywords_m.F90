@@ -136,6 +136,12 @@ MODULE keywords
     public  :: opt_method
     public  :: multiple_adiag    
 
+!    public  :: nvalence
+    public  :: excess_charge
+    public  :: multiplicity    
+
+
+
     !    Following not yet added 
 !    rlobx(y) Lobachevsky parameters for Fock expansion
 !    ipq,iacc_rej,icross,icuspg,idiv_v
@@ -325,5 +331,9 @@ MODULE keywords
     real(dp)                        :: energy_tol
 
     character(len=20)               :: opt_method
+
+!    integer                         :: nvalence
+    integer                         :: multiplicity
+    integer                         :: excess_charge    
 
 end module

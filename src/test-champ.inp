@@ -1,16 +1,29 @@
+
 title "A Sample QMC input file parsed by libfdf interfaced to CHAMP"
 
-pool            ./pool
-pseudopot       BFD
-basis           BFD-T-normf0
+pool                ./pool
+pseudopot           BFD
+basis               BFD-T-normf0
 
-%include        global.inp
-
-%block molecule < caffeine.xyz
+%include            global.inp
 
 load molecule       caffeine.xyz
 load basis          BFD-T-normf0.bas
-load determinants   TZ_1M_500.det
+#load determinants   TZ_1M_500.det
+
+
+%block molecule < caffeine.xyz
+
+
+
+
+#%block pseudopotential
+
+
+#%end block
+
+
+
 
 %module optimization
     optimize_wavefunction 	1		      

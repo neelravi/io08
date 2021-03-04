@@ -5,7 +5,9 @@ PROGRAM iochamp
   USE fdf
   USE prec
   USE parse
-  use io_fdf
+  USE io_fdf
+  USE utils
+
 
 ! Note the following two modules are being used to store and process the parsed data  
   use keywords
@@ -33,6 +35,7 @@ PROGRAM iochamp
   !type(fdf_file)             :: fdffile 
   integer                    ::  max_iteration, max_iter, linecount, argument(5)
   real(dp)                   :: float_value
+  character(len=1)           :: char1
   character(len=20)          :: real_format = '(A, T20, F14.8)'
   character(len=20)          :: int_format = '(A, T20, I8)'
   character(len=80)          :: string_format = '(A, T40, A)'  
@@ -176,7 +179,17 @@ PROGRAM iochamp
   write(6,*) '------------------------------------------------------'
 
 
+
+!  Additional keywords. check if they clash with existing
+
+  excess_charge = fdf_integer('excess_charge', 0)
+  write(6,fmt=int_format) 'Excess charges =', excess_charge
+
+  multiplicity = fdf_integer('multiplicity', 1)   ! default multiplicity singlet. An assertion is needed
+  write(6,fmt=int_format) 'multiplicity =', multiplicity
+
   
+
 
 !  write(6,'(A,4X)') 'optimize_wavefunction using bline', (subblock(i), i = 1, 4)
 
@@ -203,7 +216,7 @@ PROGRAM iochamp
           ia = 1
 
           open (unit=12,file=file_molecule, iostat=iostat, action='read' )
-          if (iostat .ne. 0) error stop "Problem in operning the molecule file"
+          if (iostat .ne. 0) error stop "Problem in opening the molecule file"
           read(12,*) natoms
           print*, "natoms ", natoms
           if (.not. allocated(cent)) allocate(cent(3,natoms))
@@ -237,8 +250,8 @@ PROGRAM iochamp
 !        write(*,*) "linecount", fdf_block_linecount("molecule")
     
         do while((fdf_bline(bfdf, pline)))
-
-          if (pline%ntokens == 1) then      
+!         get the integer from the first line 
+          if ((pline%id(1) .eq. "i") .and. (pline%ntokens .eq. 1)) then        ! check if it is the only integer present in a line
             natoms = fdf_bintegers(pline, 1)
             write(*,*) "Number of atoms = ", natoms
           endif
@@ -325,123 +338,40 @@ PROGRAM iochamp
   write(6,*) '------------------------------------------------------'
 
 
+  !  Determinants as a block. read directly from the input file
+!    under construction
+    if (fdf_block('determinants', bfdf)) then
+      ia = 1
+      do while(fdf_bline(bfdf, pline))
+        symbol(ia) = fdf_bnames(pline, 1)
+        do i= 1, 3
+          xa(i,ia) = fdf_bvalues(pline, i)
+        enddo
+        ia = ia + 1
+      enddo
+      na = ia - 1 
 
-  ! if (fdf_block('inline_xyz2', bfdf)) then
-  !   !   Forward reading 
-  !       write(6,*) 'Reading an inline_xyz2 block  '
-  !       ia = 1
-    
-  !       do while(fdf_bline(bfdf, pline))
-    
-  !         if (pline%ntokens == 1) then      
-  !           number_of_atoms = fdf_bintegers(pline, 1)
-  !           write(*,*) "Number of atoms", number_of_atoms
-  !         endif
-  !         na = number_of_atoms
-        
-  !         if (pline%ntokens == 4) then
-  !           symbol(ia) = fdf_bnames(pline, 1)
-  !           do i= 1, 3
-  !             xa(i,ia) = fdf_bvalues(pline, i)
-  !           enddo
-  !           ia = ia + 1
-  !         endif
-  !       enddo
-    
-  !       write(6,*) 'Inline XYZ2 Coordinates block:'
-  !       do ia= 1, na
-  !         write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
-  !       enddo
-  !     endif
-    
-  !     write(6,'(A)')  
+    endif
 
-  !     write(6,*) '------------------------------------------------------'
-    
-        
-    !   if (fdf_block('molecule2', bfdf)) then
-    !     !   External file reading
-    !         write(6,*) 'beginning of external file coordinates block  '
-    !         ia = 1
-    ! !        write(*,*) "linecount", fdf_block_linecount("molecule")
-        
-    !         do while((fdf_bline(bfdf, pline)))
-    
-    !           if (pline%ntokens == 1) then      
-    !             number_of_atoms = fdf_bintegers(pline, 1)
-    !             write(*,*) "number of atoms", number_of_atoms
-    !           endif
-    !           na = number_of_atoms
-            
-    !           if (pline%ntokens == 4) then
-    !             symbol(ia) = fdf_bnames(pline, 1)
-    !             do i= 1, 3
-    !               xa(i,ia) = fdf_bvalues(pline, i)
-    !             enddo
-    !             ia = ia + 1
-    !           endif
-    !         enddo
-    !     endif
-    !   write(6,*) 'Coordinates from Molecule2 block: External file'
-    !   do ia= 1, na
-    !     write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
-    !   enddo
-      
-     
-    
-    !   write(6,'(A)')  
-    
-    !   write(6,*) '------------------------------------------------------'
-    
-    
+    if (fdf_block('Coordinates', bfdf)) then
+      write(6,*) 'Coordinates:'
+      do ia = 1, na
+        write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
+      enddo
+    endif
 
 
+    write(6,*) '------------------------------------------------------'
 
-
-
-  ! if ( fdf_block('ListBlock',bfdf) ) then
-  !    i = 0
-  !    do while ( fdf_bline(bfdf,pline) )
-  !       i = i + 1
-  !       na = fdf_bnlists(pline)
-  !       write(*,'(2(a,i0),a)') 'Listblock line: ',i,' has ',na,' lists'
-  !       do ia = 1 , na
-  !          j = -1
-
-  !          call fdf_bilists(pline,ia,j,isa)
-  !          write(*,'(tr5,2(a,i0),a)') 'list ',ia,' has ',j,' entries' 
-  !          call fdf_bilists(pline,ia,j,isa)
-  !          write(*,'(tr5,a,1000(tr1,i0))') 'list: ',isa(1:j)
-
-  !       end do
-  !    end do
-  ! end if
-
-
-  ! if ( fdf_islreal('list_floats') .and. fdf_islist('list_floats') &
-  !     .and. (.not. fdf_islinteger('list_floats')) ) then
-  !   na = -1
-  !   call fdf_list('list_floats',na,listr)
-  !   write(*,'(tr1,a,i0,a)') 'list_floats has ',na,' entries'
-  !   if ( na < 2 ) stop 1
-  !   call fdf_list('list_floats',na,listr)
-  !   write(*,'(tr5,a,1000(tr1,f12.8))') 'list_floats: ',listr(1:na)
-  ! else
-  !   write(*,*)'list_floats was not recognized'
-  !   stop 1
-  ! end if
-
-  ! write(6,'(A)')  
-    
-  ! write(6,*) '------------------------------------------------------'
-
-  write(6,'(A)')  " Determinants Block"
-
-  write(6,*) '------------------------------------------------------'
 
 
   if (.not. fdf_block('determinants', bfdf)) then
-    !   External file reading
+    if ( fdf_load_defined('determinants') ) then
+      !   External file reading
+        write(6,'(A)')  " Determinants Block"
+
+        write(6,*) '------------------------------------------------------'      
+
         write(6,*) 'Reading the determinants block from an external file '
         ia = 1
 !        call io_status()
@@ -450,6 +380,7 @@ PROGRAM iochamp
         ! print*, "pline obtained",  (fdf_bline(bfdf, pline))
 
         open (unit=11,file=file_determinants, iostat=iostat, action='read' )
+        if (iostat .ne. 0) error stop "Problem in opening the determinant file"        
         read(11,*) temp1, temp2, nelectrons, temp3, nalpha
 
         read(11,*)  temp1, ndeterminants, nexcitation
@@ -479,12 +410,11 @@ PROGRAM iochamp
      
         read(11,*) temp1
         if (temp1 == "end" ) write(*,*) "Determinant File read successfully "
-
-
-
         close(11)
 
-  endif
+    endif ! condition if load determinant is present
+
+  endif ! condition determinant block not present
 
   write(6,'(A)')  
 

@@ -3,7 +3,7 @@ pool     ./pool
 molecule     caffeine.xyz                                                                    
 pseudopot     default.psp     # default value
 basis     BFD-T-normf0.bas                                                                
-determinants     TZ_1M_500.det                                                                   
+determinants     default.det     # default value
 orbitals     default.orb     # default value
 jastrow     default.jas     # default value
 jastrow_deriv     default.jasder     # default value
@@ -30,6 +30,8 @@ ifock         1     # default value
 tau         0.3999999911E-01
 etrial         -408.1744362             eV
 # above item originally: etrial         -15.00000000     Ha        
+excess_charge         0     # default value
+multiplicity         1     # default value
 %block molecule
 %block molecule
  24
@@ -59,3 +61,5 @@ etrial         -408.1744362             eV
    H      3.2249      1.5791      0.8255
    H      2.6431      2.5130     -0.5793
 %endblock molecule
+#:block? determinants              F
+#:defined? determinants              F
