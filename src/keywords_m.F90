@@ -136,11 +136,14 @@ MODULE keywords
     public  :: opt_method
     public  :: multiple_adiag    
 
-!    public  :: nvalence
     public  :: excess_charge
     public  :: multiplicity    
 
-
+!   Gaussian ECP pseudopotential keywords
+    public  :: necp_term
+    public  :: necp_power
+    public  :: ecp_coef
+    public  :: ecp_exponent
 
     !    Following not yet added 
 !    rlobx(y) Lobachevsky parameters for Fock expansion
@@ -269,6 +272,7 @@ MODULE keywords
     integer, target                 ::  ndet
     integer, pointer                ::  ndeterminants => ndet
 
+
     integer                         ::  nbasis                                              
 
     integer, target                 ::  norb
@@ -332,8 +336,17 @@ MODULE keywords
 
     character(len=20)               :: opt_method
 
-!    integer                         :: nvalence
+
     integer                         :: multiplicity
     integer                         :: excess_charge    
+
+!   Gaussian ECP pseudopotential keywords
+    integer, allocatable            :: necp_term(:,:)
+    integer, allocatable            :: necp_power(:,:,:)
+    real(dp), allocatable           :: ecp_coef(:,:,:)
+    real(dp), allocatable           :: ecp_exponent(:,:,:)
+
+
+
 
 end module

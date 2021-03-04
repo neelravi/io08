@@ -9,7 +9,7 @@ basis               BFD-T-normf0
 
 load molecule       caffeine.xyz
 load basis          BFD-T-normf0.bas
-#load determinants   TZ_1M_500.det
+load determinants   TZ_1M_500.det
 
 
 %block molecule < caffeine.xyz
@@ -17,7 +17,7 @@ load basis          BFD-T-normf0.bas
 
 
 
-#%block pseudopotential
+#%block determinants
 
 
 #%end block

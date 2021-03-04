@@ -216,7 +216,7 @@ PROGRAM iochamp
           ia = 1
 
           open (unit=12,file=file_molecule, iostat=iostat, action='read' )
-          if (iostat .ne. 0) error stop "Problem in opening the molecule file"
+          if (iostat .ne. 0) call die(file_molecule, "Problem in opening the molecule file")          
           read(12,*) natoms
           print*, "natoms ", natoms
           if (.not. allocated(cent)) allocate(cent(3,natoms))
@@ -267,7 +267,7 @@ PROGRAM iochamp
           endif
         enddo
     endif
-  write(6,*) 'Coordinates from Molecule block: External file'
+  write(6,*) 'Coordinates from Molecule block: '
   do ia= 1, natoms
     write(6,'(A4,3F10.6)') symbol(ia), (cent(i,ia),i=1,3)
   enddo
@@ -373,14 +373,9 @@ PROGRAM iochamp
         write(6,*) '------------------------------------------------------'      
 
         write(6,*) 'Reading the determinants block from an external file '
-        ia = 1
-!        call io_status()
-        ! print*, "printing label ", bfdf%label , trim(bfdf%mark%pline%line)
-
-        ! print*, "pline obtained",  (fdf_bline(bfdf, pline))
 
         open (unit=11,file=file_determinants, iostat=iostat, action='read' )
-        if (iostat .ne. 0) error stop "Problem in opening the determinant file"        
+        if (iostat .ne. 0) call die(file_determinants, "Problem in opening the determinant file")
         read(11,*) temp1, temp2, nelectrons, temp3, nalpha
 
         read(11,*)  temp1, ndeterminants, nexcitation
