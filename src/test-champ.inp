@@ -7,13 +7,14 @@ basis               BFD-T-normf0
 
 %include            global.inp
 
-load molecule       caffeine.xyz
+
 load basis          BFD-T-normf0.bas
-load determinants   TZ_1M_500.det
+#load determinants   TZ_1M_500.det
 
 
 #%block molecule < caffeine.xyz
 
+load molecule       benzene.xyz
 
 %block Coordinates
  C    0.00000    1.40272  0
@@ -48,10 +49,10 @@ load determinants   TZ_1M_500.det
 
     opt_method      sr_n 
     multiple_adiag  no
-%end module
+%endmodule
 
 
 %module DMC
     tau  = 0.04
     etrial = -15 Ha
-%end module
+%endmodule
