@@ -12,17 +12,23 @@ load basis          BFD-T-normf0.bas
 load determinants   TZ_1M_500.det
 
 
-%block molecule < caffeine.xyz
+#%block molecule < caffeine.xyz
 
 
-
-
-#%block determinants
-
-
-#%end block
-
-
+%block Coordinates
+ C    0.00000    1.40272  0
+ H    0.00000    2.49029  0
+ C   -1.21479    0.70136  0
+ H   -2.15666    1.24515  0
+ C   -1.21479   -0.70136  0
+ H   -2.15666   -1.24515  0
+ C    0.00000   -1.40272  0
+ H    0.00000   -2.49029  0
+ C    1.21479   -0.70136  0
+ H    2.15666   -1.24515  0
+ C    1.21479    0.70136  0
+ H    2.15666    1.24515  0
+%endblock
 
 
 %module optimization
@@ -31,12 +37,10 @@ load determinants   TZ_1M_500.det
     optimize_jastrow		yes       
     optimize_orbitals	    true
 
-
     sr_tau 		    0.025
     sr_eps 		    0.001
     sr_adiag 	    0.01
     energy_tol 	    1.0E-5
-
 
     ncore       0     no_active   0
     nextorb   	280 ; nblk_max 	  200
