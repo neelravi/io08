@@ -1,4 +1,3 @@
-
 FC 			= ifort
 FCFLAGS 	= -O2
 
