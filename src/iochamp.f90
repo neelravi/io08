@@ -4,9 +4,6 @@
 PROGRAM iochamp
   USE fdf
   USE prec
-  USE parse
-  USE io_fdf
-  USE utils
 
 
 ! Note the following two modules are being used to store and process the parsed data  
@@ -16,29 +13,26 @@ PROGRAM iochamp
   implicit none
 !--------------------------------------------------------------- Local Variables
   integer, parameter         :: maxa = 100
-  logical                    :: doit, debug, check, val, logic(10)
-  logical                    :: beginning, ending
-  character(len=72)          :: fname, axis, status, filename, fmt
+  logical                    :: doit, debug
+
+  character(len=72)          :: fname, filename, fmt
   character(len=72)          :: molecule_name, key, comment
   character(2)               :: symbol(maxa)
   character(len=20)          :: chunks(10), subblock(10)
   character(len=30)          :: keyword(5) 
-  integer(sp)                :: i, j, ia, na, external_entry, number_of_atoms, ind
+  integer(sp)                :: i, j, ia, na, number_of_atoms
   integer(sp)                :: isa(maxa)
   real(dp)                   :: coeff(maxa)
   real(sp)                   :: wmix
-  real(dp)                   :: cutoff, phonon_energy, factor
+  real(dp)                   :: phonon_energy
   real(dp)                   :: xa(3, maxa)
   real(dp)                   :: listr(maxa)
   type(block_fdf)            :: bfdf, bfdf2
   type(parsed_line), pointer :: pline, pline2
-  !type(fdf_file)             :: fdffile 
-  integer                    ::  max_iteration, max_iter, linecount, argument(5)
   real(dp)                   :: float_value
-  character(len=1)           :: char1
-  character(len=20)          :: real_format = '(A, T20, F14.8)'
-  character(len=20)          :: int_format = '(A, T20, I8)'
-  character(len=80)          :: string_format = '(A, T40, A)'  
+  character(len=20)          :: real_format    = '(A, T20, F14.8)'
+  character(len=20)          :: int_format     = '(A, T20, I8)'
+  character(len=80)          :: string_format  = '(A, T40, A)'  
 
 ! for determinants sections
   integer                    :: nelectrons, nexcitation, iostat
@@ -143,14 +137,9 @@ PROGRAM iochamp
   write(6,*) 'multiple_adiag:', multiple_adiag
 
 
-
-
-
   ! logical :: true, .true., yes, T, and TRUE are equivalent
   debug = fdf_boolean('Debug', .TRUE.)
   write(6,'(A, L2)') 'Debug:', debug
-
-
 
 
 ! ianalyt_lap 1 isc 2 nspin1 1 nspin2 1 ifock 0
@@ -216,7 +205,7 @@ PROGRAM iochamp
           ia = 1
 
           open (unit=12,file=file_molecule, iostat=iostat, action='read' )
-          if (iostat .ne. 0) call die(file_molecule, "Problem in opening the molecule file")          
+          if (iostat .ne. 0) stop "Problem in opening the molecule file"
           read(12,*) natoms
           print*, "natoms ", natoms
           if (.not. allocated(cent)) allocate(cent(3,natoms))
@@ -365,7 +354,7 @@ PROGRAM iochamp
         write(6,*) 'Reading the determinants block from an external file '
 
         open (unit=11,file=file_determinants, iostat=iostat, action='read' )
-        if (iostat .ne. 0) call die(file_determinants, "Problem in opening the determinant file")
+        if (iostat .ne. 0) stop "Problem in opening the determinant file"
         read(11,*) temp1, temp2, nelectrons, temp3, nalpha
 
         read(11,*)  temp1, ndeterminants, nexcitation

@@ -8,13 +8,18 @@
 
 %endmodule
 
+# Include another input file 
 %include            global.inp
+
+# load the data files using "load" 
 load basis          BFD-T-normf0.bas
-#load determinants   TZ_1M_500.det
-#load molecule  benzene.xyz
+load determinants   TZ_1M_500.det
 
-#%block molecule < caffeine.xyz
+# Option 1 (higher priority compared to option 2)
+%block molecule < caffeine.xyz
 
+
+# Option 2
 %block molecule 
 12
 some optional comment or a blank line
