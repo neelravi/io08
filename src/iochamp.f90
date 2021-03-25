@@ -33,6 +33,7 @@ PROGRAM iochamp
   character(len=20)          :: real_format    = '(A, T20, F14.8)'
   character(len=20)          :: int_format     = '(A, T20, I8)'
   character(len=80)          :: string_format  = '(A, T40, A)'  
+  character(len=80)          :: logical_format = '(A, T40, L)'    
 
 ! for determinants sections
   integer                    :: nelectrons, nexcitation, iostat
@@ -44,116 +45,63 @@ PROGRAM iochamp
 ! Initialize
   call fdf_init('test-champ.inp', 'test-champ.out')
 
+
+  write(6,*) '------------------------------------------------------'  
 ! strings/characters
   title = fdf_string('title', 'Default title')
   write(6,'(A)') 'Title of the calculation :: ', title
 
-  ! Get the directory where the pooled data is kept
+! Get the directory where the pooled data is kept
   path_pool = fdf_string('pool', './')
   write(6,fmt=string_format) 'pool directory location :: ', path_pool
 
-  ! Get all the filenames from which the data is to be read
-  file_molecule = fdf_load_filename('molecule', 'default.xyz')
-  write(6,fmt=string_format) 'filename molecule :: ', trim(file_molecule)
+  write(6,*) '------------------------------------------------------'  
 
-  file_pseudo = fdf_load_filename('pseudopot', 'default.psp')
-  write(6,fmt=string_format) 'filename pseuodpotential :: ', trim(file_pseudo)
 
-  file_basis = fdf_load_filename('basis', 'default.bas')
+! Get all the filenames from which the data is to be read
+  file_basis = fdf_load_filename('basis', 'default.gbs')
   write(6,fmt=string_format) 'filename basis :: ', trim(file_basis)
 
   file_determinants = fdf_load_filename('determinants', 'default.det')
   write(6,fmt=string_format) 'filename determinants :: ', trim(file_determinants)
 
-  file_orbitals = fdf_load_filename('orbitals', 'default.orb')
-  write(6,fmt=string_format) 'filename orbitals :: ', trim(file_orbitals)
 
-  file_jastrow = fdf_load_filename('jastrow', 'default.jas')
-  write(6,fmt=string_format) 'filename jastrow :: ',trim(file_jastrow)
+  write(6,*) '------------------------------------------------------'  
 
-  file_jastrow_deriv = fdf_load_filename('jastrow_deriv', 'default.jasder')
-  write(6,fmt=string_format) 'filename jastrow derivatives :: ', trim(file_jastrow_deriv)
-
-
-! &optwf ioptwf 1 ioptci 1 ioptjas 1 ioptorb 1
+! Logical variables
   optimize_wavefunction = fdf_boolean("optimize_wavefunction", .false.)
   write(6,*) ' optimize_wavefunction = ', optimize_wavefunction
 
-  optimize_ci = fdf_boolean('optimize_ci', .false.)
-  write(6,*) ' optimize_ci = ', optimize_ci
+! Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
 
-  optimize_jastrow = fdf_boolean('optimize_jastrow', .false.)
-  write(6,*) ' optimize_jastrow = ', optimize_jastrow
-
-  optimize_orbitals = fdf_boolean('optimize_orbitals', .false.)
-  write(6,*) ' optimize_orbitals = ', optimize_orbitals
-
-  write(6,'(A)')  
-  write(6,*) '------------------------------------------------------'
-
-
-!Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
-  ! &optwf ncore 0 nextorb 280 no_active 0
-  ! &optwf nblk_max 200 nopt_iter 2
   ncore = fdf_integer('ncore', 0)
   write(6,fmt=int_format) 'NCore =', ncore
 
-  nextorb = fdf_integer('nextorb', 0)
-  write(6,fmt=int_format) 'Next Orb =', nextorb
-
-  no_active = fdf_integer('no_active', 0)
-  write(6,fmt=int_format) 'no_active =', no_active
-
-  nblk_max = fdf_integer('nblk_max', 0)
-  write(6,fmt=int_format) 'nblk max =', nblk_max
-
-  nopt_iter = fdf_integer('nopt_iter', 0)
-  write(6,fmt=int_format) 'nopt_iter =', nopt_iter
-
-
 ! floats (keyword, default_value) variable is assigned default_value when keyword is not present
 
-  ! &optwf sr_tau 0.025 sr_eps 0.001 sr_adiag 0.01
-  ! &optwf isample_cmat 0 energy_tol 0.0
-  
+  sr_eps = fdf_double('sr_eps', 0.025d0)
+  write(6,fmt=real_format) 'sr_eps:', sr_eps
+
+  ! logical :: true, .true., yes, T, 1, and TRUE are equivalent
+  debug = fdf_boolean('Debug', .TRUE.)
+  write(6,'(A, L2)') 'Debug:', debug
+
+! floats/integers/strings/boolean can be parsed generically using fdf_get
+
   sr_tau = fdf_get('sr_tau', 0.025d0)
   write(6,fmt=real_format) 'sr_tau:', sr_tau
 
-  sr_eps = fdf_get('sr_eps', 0.001d0)
-  write(6,fmt=real_format) 'sr_eps:', sr_eps
-
-  sr_adiag = fdf_get('sr_adiag', 0.01d0)
-  write(6,fmt=real_format) 'sr_adiag:', sr_adiag
+  nspin1 = fdf_get('nspin1', 1)
+  write(6,fmt=int_format) 'nspin1 from global.fdf ', nspin1
 
   energy_tol = fdf_get('energy_tol', 0.00001d0)
   write(6,fmt=real_format) 'energy_tol:', energy_tol
 
-  ! &optwf method sr_n multiple_adiag 0
-
   opt_method = fdf_get('opt_method', "sr_n")
-  write(6,*) 'Optimization method ', opt_method
+  write(6,fmt=string_format) 'Optimization method ', opt_method
 
   multiple_adiag = fdf_get('multiple_adiag', .false.)
-  write(6,*) 'multiple_adiag:', multiple_adiag
-
-
-  ! logical :: true, .true., yes, T, and TRUE are equivalent
-  debug = fdf_boolean('Debug', .TRUE.)
-  write(6,'(A, L2)') 'Debug:', debug
-
-
-! ianalyt_lap 1 isc 2 nspin1 1 nspin2 1 ifock 0
-  analytic_laplacian = fdf_get('ianalyt_lap', 1)
-  write(6,*) 'analytic laplacian from global.fdf pointer explained ', ianalyt_lap
-
-  nspin1 = fdf_get('nspin1', 1)
-  write(6,*) 'nspin1 from global.fdf ', nspin1
-
-  nspin2 = fdf_get('nspin2', 1)
-  write(6,*) 'nspin2 from global.fdf ', nspin2
-
-  ifock = fdf_get('ifock', 1)
-  write(6,*) 'ifock from global.fdf ', ifock
+  write(6,fmt=logical_format) 'multiple_adiag:', multiple_adiag
 
 
   ! mixed types in one line (for example, reading a number with units)
@@ -167,17 +115,6 @@ PROGRAM iochamp
 
   write(6,*) '------------------------------------------------------'
 
-
-
-!  Additional keywords. check if they clash with existing
-
-  excess_charge = fdf_integer('excess_charge', 0)
-  write(6,fmt=int_format) 'Excess charges =', excess_charge
-
-  multiplicity = fdf_integer('multiplicity', 1)   ! default multiplicity singlet. An assertion is needed
-  write(6,fmt=int_format) 'multiplicity =', multiplicity
-
-  
 
 
 !  write(6,'(A,4X)') 'optimize_wavefunction using bline', (subblock(i), i = 1, 4)
@@ -231,9 +168,8 @@ PROGRAM iochamp
 
   if (fdf_block('molecule', bfdf)) then
     !   External file reading
-        write(6,*) 'beginning of external file coordinates block  '
+        write(6,*) 'Beginning of external file coordinates block  '
         ia = 1
-!        write(*,*) "linecount", fdf_block_linecount("molecule")
     
         do while((fdf_bline(bfdf, pline)))
 !         get the integer from the first line 
@@ -284,37 +220,9 @@ PROGRAM iochamp
   write(6,*) '------------------------------------------------------'
 
 
-  if (fdf_block('inline_xyz', bfdf)) then
-!   Forward reading 
-    write(6,*) 'Reading an inline_xyz block  '
-    ia = 1
 
-    do while((fdf_bline(bfdf, pline)))
 
-      if (pline%ntokens == 1) then
-        number_of_atoms = fdf_bintegers(pline, 1)
-        write(*,*) "Number of atoms", number_of_atoms
-      endif
-      na = number_of_atoms
 
-      if (pline%ntokens == 4) then
-        symbol(ia) = fdf_bnames(pline, 1)
-        do i= 1, 3
-          xa(i,ia) = fdf_bvalues(pline, i)
-        enddo
-        ia = ia + 1
-      endif
-    enddo
-
-    write(6,*) 'Inline XYZ Coordinates block:'
-    do ia= 1, na
-      write(6,'(A4,3F10.6)') symbol(ia), (xa(i,ia),i=1,3)
-    enddo
-  endif
-
-  write(6,'(A)')  
-
-  write(6,*) '------------------------------------------------------'
 
 
   !  Determinants as a block. read directly from the input file
@@ -361,18 +269,20 @@ PROGRAM iochamp
         if (.not. allocated(det_coeff)) allocate(det_coeff(ndeterminants))           
 
         read(11,*) (det_coeff(i), i=1,ndeterminants)
-        write(fmt,*)  '(', ndeterminants, '(f11.8,1x))'
-        write(*,fmt) (det_coeff(i), i=1,ndeterminants)
 !        write(*,'(<ndeterminants>(f11.8, 1x))') (det_coeff(i), i=1,ndeterminants)    ! for Intel Fortran  
 
         nbeta       = nelectrons - nalpha        
-!       allocate the orbital mapping array        
-        if (.not. allocated(iworbd)) allocate(iworbd(nelectrons, ndeterminants))
-        
+
         write(*,*) "total number of       electrons ", nelectrons
         write(*,*) "      number of alpha electrons ", nalpha        
         write(*,*) "      number of beta  electrons ", nbeta
 
+        write(fmt,*)  '(', ndeterminants, '(f11.8,1x))'
+        write(*,fmt) (det_coeff(i), i=1,ndeterminants)
+
+!       allocate the orbital mapping array        
+        if (.not. allocated(iworbd)) allocate(iworbd(nelectrons, ndeterminants))
+        
         do i = 1, ndeterminants
           read(11,*) (iworbd(j,i), j=1,nelectrons)
         enddo

@@ -1,37 +1,19 @@
 title     A Sample QMC input file parsed by libfdf interfaced to CHAMP                    
 pool     ./pool                                                                          
-molecule     default.xyz     # default value
-pseudopot     default.psp     # default value
 basis     BFD-T-normf0.bas                                                                
 determinants     TZ_1M_500.det                                                                   
-orbitals     default.orb     # default value
-jastrow     default.jas     # default value
-jastrow_deriv     default.jasder     # default value
 optimize_wavefunction              T
-optimize_ci              F
-optimize_jastrow              T
-optimize_orbitals              T
 ncore              0
-nextorb            280
-no_active         0     # default value
-nblk_max         0     # default value
-nopt_iter              2
-sr_tau         0.2500000000E-01
 sr_eps         0.1000000000E-02
-sr_adiag         0.1000000000E-01
+Debug              T     # default value
+sr_tau         0.2500000000E-01
+nspin1         1     # default value
 energy_tol         0.1000000000E-04
 opt_method     sr_n                                                                            
 multiple_adiag              F
-Debug              T     # default value
-ianalyt_lap              1
-nspin1         1     # default value
-nspin2         1     # default value
-ifock         1     # default value
 tau         0.3999999911E-01
 etrial         -408.1744362             eV
 # above item originally: etrial         -15.00000000     Ha        
-excess_charge         0     # default value
-multiplicity         1     # default value
 %block molecule
 %block molecule
  24

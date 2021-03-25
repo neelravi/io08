@@ -3,7 +3,6 @@
 	title "A Sample QMC input file parsed by libfdf interfaced to CHAMP"
 
 	pool                ./pool
-	pseudopot           BFD
 	basis               BFD-T-normf0
 
 %endmodule
