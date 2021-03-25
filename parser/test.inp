@@ -1,0 +1,52 @@
+
+
+%module general
+	title "This is a sample input file."
+	pool            ./pool
+	basis           cc-pVTZ
+%endmodule
+
+# Include another input file 
+%include            global.inp
+
+# load the data files using "load" construct
+load basis          cc-pVTZ.bas
+load molecule       methane.xyz
+load determinants   sample.det
+
+# Option 1 (higher priority compared to option 2)
+%block molecule < methane.xyz
+
+# Option 2
+%block molecule 
+5
+Methane
+ C    0.0000    0.0000    0.0000
+ H    0.5288    0.1610    0.9359
+ H    0.2051    0.8240   -0.6786
+ H    0.3345   -0.9314   -0.4496
+ H   -1.0685   -0.0537    0.1921
+%endblock
+
+
+%module optimization
+    optimize_wave   true		      
+    optimize_ci     0
+
+    sr_tau 		    0.025
+    sr_eps 		    0.001d0
+    energy_tol 	    1.0E-5
+
+    ncore       0     no_active   0
+    nextorb   	280 ; nblk_max 	  200
+
+    opt_method      sr_n 
+    multiple_adiag  no
+%endmodule
+
+
+%module DMC
+    tau     = 0.04
+# Units can be specified after a number    
+    etrial  = -15 Ha
+%endmodule

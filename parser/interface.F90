@@ -43,7 +43,7 @@ PROGRAM iochamp
 !------------------------------------------------------------------------- BEGIN
 
 ! Initialize
-  call fdf_init('test-champ.inp', 'test-champ.out')
+  call fdf_init('test.inp', 'test.out')
 
 
   write(6,*) '------------------------------------------------------'  
@@ -69,8 +69,8 @@ PROGRAM iochamp
   write(6,*) '------------------------------------------------------'  
 
 ! Logical variables
-  optimize_wavefunction = fdf_boolean("optimize_wavefunction", .false.)
-  write(6,*) ' optimize_wavefunction = ', optimize_wavefunction
+  optimize_wave = fdf_boolean("optimize_wave", .false.)
+  write(6,*) ' optimize_wavefunction = ', optimize_wave
 
 ! Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
 
