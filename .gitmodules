@@ -1,0 +1,3 @@
+[submodule "modified-libfdf"]
+	path = modified-libfdf
+	url = https://github.com/neelravi/libfdf.git
