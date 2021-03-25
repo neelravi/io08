@@ -1,5 +1,8 @@
 #!/bin/bash
-ifort -c m_periodic_table.F90
-ifort -c m_keywords.F90
+FC=ifort
+echo $FC
 
-ifort iochamp.f90 m_keywords.o m_periodic_table.o /usr/local/lib/libfdf.a
+$FC -c m_periodic_table.F90
+$FC -c m_keywords.F90
+
+$FC iochamp.f90 m_keywords.o m_periodic_table.o /usr/local/lib/libfdf.a

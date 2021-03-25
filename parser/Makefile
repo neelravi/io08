@@ -2,23 +2,13 @@
 FC 			= ifort
 FCFLAGS 	= -O2
 
-LIBS 		= -L/home/neelravi/devel/libfdf-original/lib
-INCLUDES 	= -I/home/neelravi/devel/libfdf-original/include
+LIBS 		= -L/usr/local/lib
+INCLUDES 	= -I/usr/local/include
 
-LDFLAGS 	= -lfdf
+LDFLAGS 	= /usr/local/lib/libfdf.a
 
-SOURCE 		= iochamp.f90
-OBJECTS		= iochamp.o
-
-#default: parser
-
-
-#parser: $(OBJECTS)
-#	$(FC) -o parser $(OBJECTS) 
-
-#$(OBJECTS): $(SOURCE)
-$(FC) $(FCFLAGS) $(SOURCE) $(LDFLAGS) $(LIBS) $(INCLUDES) -o $(OBJECTS) 
-
-#clean:
-#	$(RM) $(OBJECTS)
+SOURCE 		= iochamp.f90 
+MODULES		= m_periodic_table.F90 	m_keywords.F90
+OBJECTS		= m_periodic_table.o m_keywords.o
+PROJECT 	= iochamp.o
 
