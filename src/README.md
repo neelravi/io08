@@ -68,6 +68,8 @@ Here, depending upon the label, parser will provide the filename. For example,
 %endmodule
 ```
 
+- Logical variables accept true, TRUE, T, 1, .true. as valid keywords for true
+` optimize_wavefunction 	true`
 
 
 
