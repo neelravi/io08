@@ -1,22 +1,23 @@
 
-title "A Sample QMC input file parsed by libfdf interfaced to CHAMP"
+%module general
+	title "A Sample QMC input file parsed by libfdf interfaced to CHAMP"
 
-pool                ./pool
-pseudopot           BFD
-basis               BFD-T-normf0
+	pool                ./pool
+	pseudopot           BFD
+	basis               BFD-T-normf0
+
+%endmodule
 
 %include            global.inp
-
-
 load basis          BFD-T-normf0.bas
 #load determinants   TZ_1M_500.det
-
+#load molecule  benzene.xyz
 
 #%block molecule < caffeine.xyz
 
-load molecule       benzene.xyz
-
-%block Coordinates
+%block molecule 
+12
+some optional comment or a blank line
  C    0.00000    1.40272  0
  H    0.00000    2.49029  0
  C   -1.21479    0.70136  0

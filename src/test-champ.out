@@ -1,6 +1,6 @@
 title     A Sample QMC input file parsed by libfdf interfaced to CHAMP                    
 pool     ./pool                                                                          
-molecule     benzene.xyz                                                                     
+molecule     default.xyz     # default value
 pseudopot     default.psp     # default value
 basis     BFD-T-normf0.bas                                                                
 determinants     default.det     # default value
@@ -32,7 +32,10 @@ etrial         -408.1744362             eV
 # above item originally: etrial         -15.00000000     Ha        
 excess_charge         0     # default value
 multiplicity         1     # default value
-%block Coordinates
+%block molecule
+%block molecule
+ 12
+ some optional comment or a blank line
   C    0.00000    1.40272  0
   H    0.00000    2.49029  0
   C   -1.21479    0.70136  0
@@ -45,6 +48,6 @@ multiplicity         1     # default value
   H    2.15666   -1.24515  0
   C    1.21479    0.70136  0
   H    2.15666    1.24515  0
-%endblock Coordinates
+%endblock molecule
 #:block? determinants              F
 #:defined? determinants              F
