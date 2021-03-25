@@ -11,14 +11,17 @@ This Markdown cheat sheet provides a quick overview of all the Markdown syntax e
 
 
 ## Compilation
-  The project contains two directories (a) modified-libfdf and (b) parser.
+  The project contains two folders (a) modified-libfdf and (b) parser.
 
   - Compile and install the modified-libfdf using the following set of commands
-    - `./configure --prefix=/usr/local FC=ifort CC=icc `
-    - `make`
-    - `sudo make install`
-    - `make check`
-
+    ```Console
+        ./configure --prefix=/usr/local FC=ifort CC=icc
+        make
+        sudo make install
+        make check
+    ```
+  - In the parser folder, link the modified libfdf library with the interface Fortran file.
+  ```
 
 ## Integrate parser in your code
 
