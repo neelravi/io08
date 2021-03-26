@@ -12,24 +12,16 @@ PROGRAM iochamp
 !  
   implicit none
 !--------------------------------------------------------------- Local Variables
-  integer, parameter         :: maxa = 100
-  logical                    :: doit, debug
+  type(block_fdf)            :: bfdf
+  type(parsed_line), pointer :: pline
 
-  character(len=72)          :: fname, filename, fmt
-  character(len=72)          :: molecule_name, key, comment
-  character(2)               :: symbol(maxa)
-  character(len=20)          :: chunks(10), subblock(10)
-  character(len=30)          :: keyword(5) 
-  integer(sp)                :: i, j, ia, na, number_of_atoms
-  integer(sp)                :: isa(maxa)
-  real(dp)                   :: coeff(maxa)
-  real(sp)                   :: wmix
-  real(dp)                   :: phonon_energy
-  real(dp)                   :: xa(3, maxa)
-  real(dp)                   :: listr(maxa)
-  type(block_fdf)            :: bfdf, bfdf2
-  type(parsed_line), pointer :: pline, pline2
-  real(dp)                   :: float_value
+  logical                    :: debug
+
+  integer(sp)                :: i, j, ia
+  
+  character(len=72)          :: fmt, key
+  character(2), allocatable  :: symbol(:)
+  
   character(len=20)          :: real_format    = '(A, T28, F14.8)'
   character(len=20)          :: int_format     = '(A, T34, I8)'
   character(len=80)          :: string_format  = '(A, T40, A)'  
@@ -37,9 +29,8 @@ PROGRAM iochamp
 
 ! for determinants sections
   integer                    :: nelectrons, nexcitation, iostat
-  integer, allocatable       :: det_alpha(:), det_beta(:)
   real(kind=8), allocatable  :: det_coeff(:)
-  character(len=20)          :: temp1, temp2, temp3, temp4, temp5
+  character(len=20)          :: temp1, temp2, temp3
 !------------------------------------------------------------------------- BEGIN
 
 ! Initialize
@@ -56,6 +47,8 @@ PROGRAM iochamp
   write(6,fmt=string_format) ' pool directory location :: ', path_pool
 
   write(6,*) '------------------------------------------------------'  
+
+
 
 
 ! Get all the filenames from which the data is to be read
@@ -75,22 +68,22 @@ PROGRAM iochamp
   optimize_wave = fdf_boolean("optimize_wave", .false.)
 !  write(6,fmt=logical_format) 'optimize_wavefunction = ', optimize_wave
 
-! Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
 
+! Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
   nextorb  = fdf_integer('nextorb', 0)
 !  write(6,fmt=int_format) ' NExtOrb =', nextorb
 
 ! floats (keyword, default_value) variable is assigned default_value when keyword is not present
-
   sr_eps = fdf_double('sr_eps', 0.025d0)
 !  write(6,fmt=real_format) ' sr_eps:', sr_eps
 
-  ! logical :: true, .true., yes, T, 1, and TRUE are equivalent
+! logical :: true, .true., yes, T, 1, and TRUE are equivalent
   debug = fdf_boolean('Debug', .TRUE.)
 !  write(6,'(A, L2)') ' Debug:', debug
 
-! floats/integers/strings/boolean can be parsed generically using fdf_get
 
+
+! floats/integers/strings/boolean can be parsed generically using fdf_get
   sr_tau = fdf_get('sr_tau', 0.025d0)
 !  write(6,fmt=real_format) ' sr_tau:', sr_tau
 
@@ -107,7 +100,7 @@ PROGRAM iochamp
 !  write(6,fmt=logical_format) ' multiple_adiag:', multiple_adiag
 
 
-  ! mixed types in one line (for example, reading a number with units)
+! mixed types in one line (for example, reading a number with units)
   tau = fdf_get('tau', 0.05)
 !  write(6,fmt=real_format) ' DMC tau = ', tau
 
@@ -115,7 +108,7 @@ PROGRAM iochamp
 !  write(6,fmt=real_format) ' Energy CutOff in eV :: ', energy_trial
 
 
-  ! Pretty printing of above-mentioned keywords
+! Pretty printing of above-mentioned keywords
   write(6,'(A)')  
   write(6,*) '------------------------------------------------------'
 
@@ -142,25 +135,6 @@ PROGRAM iochamp
   write(6,'(A)')  
   write(6,*) '------------------------------------------------------'
 
-
-
-!  To Search a keyword inside a %block
-
-  if (fdf_block('general', bfdf)) then
-    write(*,*) "Inside general block"
-    i = 1
-    do while(fdf_bline(bfdf, pline))    
-      doit = fdf_bsearch(pline, "pool")    
-      write(*,*) "pool found", doit      
-      i = i + 1
-    enddo
-
-    write(6,'(A)')  
-    write(6,*) '------------------------------------------------------'
-  
-  endif
- 
-  
   
 
   if (.not. fdf_block('molecule', bfdf)) then
@@ -173,6 +147,7 @@ PROGRAM iochamp
           read(12,*) natoms
           print*, "natoms ", natoms
           if (.not. allocated(cent)) allocate(cent(3,natoms))
+          if (.not. allocated(symbol)) allocate(symbol(natoms))                    
           
           read(12,'(A)')  key
           print*, "Comment :: ", trim(key)
@@ -206,6 +181,7 @@ PROGRAM iochamp
           endif
 
           if (.not. allocated(cent)) allocate(cent(3,natoms))
+          if (.not. allocated(symbol)) allocate(symbol(natoms))          
         
           if (pline%ntokens == 4) then
             symbol(ia) = fdf_bnames(pline, 1)
