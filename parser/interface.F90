@@ -49,7 +49,6 @@ PROGRAM interface
 
 
 
-
 ! Get all the filenames from which the data is to be read
   file_basis = fdf_load_filename('basis', 'default.gbs')
   write(6,fmt=string_format) ' filename basis :: ', trim(file_basis)
