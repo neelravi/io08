@@ -30,15 +30,15 @@ PROGRAM iochamp
   type(block_fdf)            :: bfdf, bfdf2
   type(parsed_line), pointer :: pline, pline2
   real(dp)                   :: float_value
-  character(len=20)          :: real_format    = '(A, T20, F14.8)'
-  character(len=20)          :: int_format     = '(A, T20, I8)'
+  character(len=20)          :: real_format    = '(A, T28, F14.8)'
+  character(len=20)          :: int_format     = '(A, T34, I8)'
   character(len=80)          :: string_format  = '(A, T40, A)'  
   character(len=80)          :: logical_format = '(A, T40, L)'    
 
 ! for determinants sections
   integer                    :: nelectrons, nexcitation, iostat
   integer, allocatable       :: det_alpha(:), det_beta(:)
-  real(selected_real_kind(6,15)), allocatable :: det_coeff(:)
+  real(kind=8), allocatable  :: det_coeff(:)
   character(len=20)          :: temp1, temp2, temp3, temp4, temp5
 !------------------------------------------------------------------------- BEGIN
 
@@ -49,90 +49,117 @@ PROGRAM iochamp
   write(6,*) '------------------------------------------------------'  
 ! strings/characters
   title = fdf_string('title', 'Default title')
-  write(6,'(A)') 'Title of the calculation :: ', title
+  write(6,fmt=string_format) ' Title of the calculation :: ', title
 
 ! Get the directory where the pooled data is kept
   path_pool = fdf_string('pool', './')
-  write(6,fmt=string_format) 'pool directory location :: ', path_pool
+  write(6,fmt=string_format) ' pool directory location :: ', path_pool
 
   write(6,*) '------------------------------------------------------'  
 
 
 ! Get all the filenames from which the data is to be read
   file_basis = fdf_load_filename('basis', 'default.gbs')
-  write(6,fmt=string_format) 'filename basis :: ', trim(file_basis)
+  write(6,fmt=string_format) ' filename basis :: ', trim(file_basis)
+
+  file_molecule = fdf_load_filename('molecule', '')
+  write(6,fmt=string_format) ' filename molecule :: ', trim(file_molecule)
 
   file_determinants = fdf_load_filename('determinants', 'default.det')
-  write(6,fmt=string_format) 'filename determinants :: ', trim(file_determinants)
+  write(6,fmt=string_format) ' filename determinants :: ', trim(file_determinants)
 
 
   write(6,*) '------------------------------------------------------'  
 
 ! Logical variables
   optimize_wave = fdf_boolean("optimize_wave", .false.)
-  write(6,*) ' optimize_wavefunction = ', optimize_wave
+!  write(6,fmt=logical_format) 'optimize_wavefunction = ', optimize_wave
 
 ! Integer numbers (keyword, default_value). The variable is assigned default_value when keyword is not present
 
-  ncore = fdf_integer('ncore', 0)
-  write(6,fmt=int_format) 'NCore =', ncore
+  nextorb  = fdf_integer('nextorb', 0)
+!  write(6,fmt=int_format) ' NExtOrb =', nextorb
 
 ! floats (keyword, default_value) variable is assigned default_value when keyword is not present
 
   sr_eps = fdf_double('sr_eps', 0.025d0)
-  write(6,fmt=real_format) 'sr_eps:', sr_eps
+!  write(6,fmt=real_format) ' sr_eps:', sr_eps
 
   ! logical :: true, .true., yes, T, 1, and TRUE are equivalent
   debug = fdf_boolean('Debug', .TRUE.)
-  write(6,'(A, L2)') 'Debug:', debug
+!  write(6,'(A, L2)') ' Debug:', debug
 
 ! floats/integers/strings/boolean can be parsed generically using fdf_get
 
   sr_tau = fdf_get('sr_tau', 0.025d0)
-  write(6,fmt=real_format) 'sr_tau:', sr_tau
+!  write(6,fmt=real_format) ' sr_tau:', sr_tau
 
   nspin1 = fdf_get('nspin1', 1)
-  write(6,fmt=int_format) 'nspin1 from global.fdf ', nspin1
+!  write(6,fmt=int_format) ' nspin1 from global ', nspin1
 
   energy_tol = fdf_get('energy_tol', 0.00001d0)
-  write(6,fmt=real_format) 'energy_tol:', energy_tol
+!  write(6,fmt=real_format) ' energy_tol:', energy_tol
 
   opt_method = fdf_get('opt_method', "sr_n")
-  write(6,fmt=string_format) 'Optimization method ', opt_method
+!  write(6,fmt=string_format) ' Optimization method ', opt_method
 
   multiple_adiag = fdf_get('multiple_adiag', .false.)
-  write(6,fmt=logical_format) 'multiple_adiag:', multiple_adiag
+!  write(6,fmt=logical_format) ' multiple_adiag:', multiple_adiag
 
 
   ! mixed types in one line (for example, reading a number with units)
   tau = fdf_get('tau', 0.05)
-  write(6,fmt=real_format) 'DMC tau = ', tau
+!  write(6,fmt=real_format) ' DMC tau = ', tau
 
   etrial = fdf_physical('etrial', -20.d0, 'eV')
-  write(6,fmt=real_format) 'Energy CutOff in eV :: ', energy_trial
+!  write(6,fmt=real_format) ' Energy CutOff in eV :: ', energy_trial
+
+
+  ! Pretty printing of above-mentioned keywords
+  write(6,'(A)')  
+  write(6,*) '------------------------------------------------------'
+
+  write(6,fmt=string_format) ' Optimization method ', opt_method  
+
+  write(6,fmt=logical_format) ' Optimize wavefunctions :: ', optimize_wave
+  write(6,fmt=logical_format) ' multiple_adiag :: ', multiple_adiag
+  write(6,fmt=logical_format) ' Debug :: ', debug
+
+  write(6,*) '-------------------------'  
+
+  write(6,fmt=int_format) ' NExtOrb :: ', nextorb
+  write(6,fmt=int_format) ' Nspin1 from global :: ', nspin1
+
+  write(6,*) '-------------------------'  
+
+  write(6,fmt=real_format) ' sr_tau :: ', sr_tau
+  write(6,fmt=real_format) ' energy_tol :: ', energy_tol
+
+  write(6,*) '-------------------------'  
+
+  write(6,fmt=real_format) ' Trial Energy in eV :: ', energy_trial
 
   write(6,'(A)')  
-
   write(6,*) '------------------------------------------------------'
 
 
 
-!  write(6,'(A,4X)') 'optimize_wavefunction using bline', (subblock(i), i = 1, 4)
+!  To Search a keyword inside a %block
 
   if (fdf_block('general', bfdf)) then
-    write(*,*) "inside general block"
+    write(*,*) "Inside general block"
     i = 1
     do while(fdf_bline(bfdf, pline))    
       doit = fdf_bsearch(pline, "pool")    
       write(*,*) "pool found", doit      
       i = i + 1
     enddo
-  endif
 
-  write(6,'(A)')  
-
-  write(6,*) '------------------------------------------------------'
+    write(6,'(A)')  
+    write(6,*) '------------------------------------------------------'
   
+  endif
+ 
   
   
 
@@ -158,17 +185,17 @@ PROGRAM iochamp
           do ia= 1, natoms
             write(6,'(A4,3F10.6)') symbol(ia), (cent(i,ia),i=1,3)
           enddo
+    write(6,'(A)')  
+    write(6,*) '------------------------------------------------------'        
   endif
  
-  write(6,'(A)')  
-  write(6,*) '------------------------------------------------------'
 
 
 
 
   if (fdf_block('molecule', bfdf)) then
     !   External file reading
-        write(6,*) 'Beginning of external file coordinates block  '
+        write(6,*) 'Beginning of molecular coordinates block  '
         ia = 1
     
         do while((fdf_bline(bfdf, pline)))
@@ -189,66 +216,15 @@ PROGRAM iochamp
           endif
         enddo
 
-        write(6,*) 'Coordinates from single line Molecule block: '
+        write(6,*) 'Coordinates from Molecule block: '
         do ia= 1, natoms
           write(6,'(A4,3F10.6)') symbol(ia), (cent(i,ia),i=1,3)
         enddo
-      endif
 
-  write(6,'(A)')  
-
-  write(6,*) '------------------------------------------------------'
-
-
-!  Molecule coordinate block begins here  for demonstration
-
-  if (fdf_block('Coordinates', bfdf)) then
-    ia = 1
-    do while(fdf_bline(bfdf, pline))
-      symbol(ia) = fdf_bnames(pline, 1)
-      do i= 1, 3
-        xa(i,ia) = fdf_bvalues(pline, i)
-      enddo
-      ia = ia + 1
-    enddo
-    write(6,*) 'Coordinates from explicit data block:'
-    do j = 1, ia
-      write(6,'(A, 4x, 3F10.6)') symbol(j), (xa(i,j),i=1,3) 
-    enddo
+        write(6,'(A)')  
+        write(6,*) '------------------------------------------------------'     
   endif
 
-  write(6,*) '------------------------------------------------------'
-
-
-
-
-
-
-
-  !  Determinants as a block. read directly from the input file
-!    under construction
-    if (fdf_block('determinants', bfdf)) then
-      ia = 1
-      do while(fdf_bline(bfdf, pline))
-        symbol(ia) = fdf_bnames(pline, 1)
-        do i= 1, 3
-          xa(i,ia) = fdf_bvalues(pline, i)
-        enddo
-        ia = ia + 1
-      enddo
-      na = ia - 1 
-
-    endif
-
-    ! if (fdf_block('Coordinates', bfdf)) then
-    !   write(6,*) 'Coordinates:'
-    !   do ia = 1, na
-    !     write(6,'(A, 4x, 3F10.6)') symbol(ia), (xa(i,ia),i=1,3) 
-    !   enddo
-    ! endif
-
-
-    write(6,*) '------------------------------------------------------'
 
 
 
@@ -277,6 +253,8 @@ PROGRAM iochamp
         write(*,*) "      number of alpha electrons ", nalpha        
         write(*,*) "      number of beta  electrons ", nbeta
 
+        write(6,'(A)')  
+        write(*,*) "Determinant Coefficients" 
         write(fmt,*)  '(', ndeterminants, '(f11.8,1x))'
         write(*,fmt) (det_coeff(i), i=1,ndeterminants)
 
@@ -287,9 +265,12 @@ PROGRAM iochamp
           read(11,*) (iworbd(j,i), j=1,nelectrons)
         enddo
 
-        write(fmt,*)  '(i4,1x)'        
+        write(6,'(A)')  
+        write(*,*) "Spin-alpha and Spin-beta determinants" 
+        write(fmt,*) '(', nelectrons, '(i4,1x))'        
         do i = 1, ndeterminants
-          write(*,'(<nelectrons>(i4, 1x))') (iworbd(j,i), j=1,nelectrons)
+!          write(*,'(<nelectrons>(i4, 1x))') (iworbd(j,i), j=1,nelectrons)       ! For Intel Fortran
+          write(*,fmt) (iworbd(j,i), j=1,nelectrons)          
         enddo
      
         read(11,*) temp1
@@ -297,12 +278,10 @@ PROGRAM iochamp
         close(11)
 
     endif ! condition if load determinant is present
-
+    write(6,'(A)')  
+    write(6,*) '------------------------------------------------------'
   endif ! condition determinant block not present
 
-  write(6,'(A)')  
-
-  write(6,*) '------------------------------------------------------'
 
 
   call fdf_shutdown()

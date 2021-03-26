@@ -118,10 +118,8 @@ MODULE keywords
     public  ::  cutjas,     cutoff_jastrow                          ! cutoff for Jastrow4,5,6 if cutjas=6,7
     public  ::  itau_eff,   itau_effective
 
-    public  :: optimize_wavefunction
+    public  :: optimize_wave
     public  :: optimize_ci 
-    public  :: optimize_jastrow
-    public  :: optimize_orbitals 
 
     public  :: ncore
     public  :: nextorb
@@ -317,10 +315,8 @@ MODULE keywords
     real(dp), pointer               ::  itau_effective => itau_eff
 
 
-    logical                         :: optimize_wavefunction
+    logical                         :: optimize_wave
     logical                         :: optimize_ci
-    logical                         :: optimize_jastrow
-    logical                         :: optimize_orbitals 
     logical                         :: multiple_adiag
 
     integer                         :: ncore

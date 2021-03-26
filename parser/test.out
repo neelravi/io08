@@ -1,13 +1,14 @@
-title     A Sample QMC input file parsed by libfdf interfaced to CHAMP                    
+title     This is a sample input file.                                                    
 pool     ./pool                                                                          
-basis     BFD-T-normf0.bas                                                                
-determinants     determinant.det                                                                 
-optimize_wavefunction              T
-ncore              0
+basis     cc-pVTZ.bas                                                                     
+molecule     methane.xyz                                                                     
+determinants     sample.det                                                                      
+optimize_wave              T
+nextorb            280
 sr_eps         0.1000000000E-02
 Debug              T     # default value
 sr_tau         0.2500000000E-01
-nspin1         1     # default value
+nspin1              1
 energy_tol         0.1000000000E-04
 opt_method     sr_n                                                                            
 multiple_adiag              F
@@ -18,10 +19,10 @@ etrial         -408.1744362             eV
 %block molecule
  5
  Methane
-  C    0.0000    0.0000    0.0000
-  H    0.5288    0.1610    0.9359
-  H    0.2051    0.8240   -0.6786
-  H    0.3345   -0.9314   -0.4496
-  H   -1.0685   -0.0537    0.1921
+   H      0.5288      0.1610      0.9359
+   C      0.0000      0.0000      0.0000
+   H      0.2051      0.8240     -0.6786
+   H      0.3345     -0.9314     -0.4496
+   H     -1.0685     -0.0537      0.1921
 %endblock molecule
 #:defined? determinants              T
