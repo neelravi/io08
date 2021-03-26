@@ -100,7 +100,7 @@
 
     `energy_tol = fdf_get('energy_tol', 0.00001d0)`
 
-9. Floats/integers/strings/booleans can be parsed generically using the interface `fdf_get()` function.
+9. Floats/integers/strings/booleans can be parsed generically using the interface `fdf_get()` function. Strings are limited to 132 characters per line.
 
     `  sr_tau         = fdf_get('sr_tau', 0.025d0)`
 
@@ -206,5 +206,7 @@
 
 ## Demonstration
 
-    In the `parser` folder, we have included a sample `interface.F90` and `m_keywords.F90` files. In the `interface.F90` file, we have demonstrated how keyword-values pairs, simple data blocks, and data from external files can be read easily. 
+    In the `parser` folder, we have included a sample `interface.F90` and `m_keywords.F90` files. 
+    In the `interface.F90` file, we have demonstrated how keyword-values pairs, simple data blocks, 
+    and data from external files can be read easily. 
 
