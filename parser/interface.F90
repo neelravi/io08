@@ -1,7 +1,6 @@
 !
-!     Shows FDF capabilities..
 !
-PROGRAM iochamp
+PROGRAM interface
   USE fdf
   USE prec
 
@@ -263,4 +262,4 @@ PROGRAM iochamp
   call fdf_shutdown()
 
 !----------------------------------------------------------------------------END
-END PROGRAM iochamp
+END PROGRAM interface
