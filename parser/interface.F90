@@ -28,7 +28,7 @@ PROGRAM iochamp
   character(len=80)          :: logical_format = '(A, T40, L)'    
 
 ! for determinants sections
-  integer                    :: nelectrons, nexcitation, iostat
+  integer                    :: nelectrons, iostat
   real(kind=8), allocatable  :: det_coeff(:)
   character(len=20)          :: temp1, temp2, temp3
 !------------------------------------------------------------------------- BEGIN
@@ -217,7 +217,7 @@ PROGRAM iochamp
         if (iostat .ne. 0) stop "Problem in opening the determinant file"
         read(11,*) temp1, temp2, nelectrons, temp3, nalpha
 
-        read(11,*)  temp1, ndeterminants, nexcitation
+        read(11,*)  temp1, ndeterminants, iwctype
         if (.not. allocated(det_coeff)) allocate(det_coeff(ndeterminants))           
 
         read(11,*) (det_coeff(i), i=1,ndeterminants)
