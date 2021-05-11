@@ -11,7 +11,7 @@ on:
     branches: [ minimal ]
 
   # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  # workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -24,15 +24,13 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
       # Runs a single command using the runners shell
       - name: Compile the code
         run: |
-          echo Compiling the code in the directory
-          echo $PWD
-          echo Running using a self-hosted runner
-#          cd fparser/modified-libfdf
-#          ./configure FC=ifort CC=icc --prefix=$PWD
+          echo "Compiling the code in the directory"
+          echo "Running using a self-hosted runner"
+          cd fparser/modified-libfdf
+          ./configure FC=ifort CC=icc --prefix=$PWD
 #          make clean
 #          make 
 #          make install
