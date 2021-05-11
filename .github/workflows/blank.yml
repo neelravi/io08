@@ -27,10 +27,10 @@ jobs:
       # Runs a single command using the runners shell
       - name: Compile the code
         run: |
-          echo "Compiling the code in the directory"
-          echo "Running using a self-hosted runner"
-          cd fparser/modified-libfdf
-          ./configure FC=ifort CC=icc --prefix=$PWD
+          echo Compiling the code in the directory
+          echo Running using a self-hosted runner
+#          cd fparser/modified-libfdf
+#          ./configure FC=ifort CC=icc --prefix=$PWD
 #          make clean
 #          make 
 #          make install
